@@ -404,5 +404,3 @@ Para acceder a endpoints protegidos, debes incluir el token JWT en el encabezado
 - **Prueba la escalabilidad de roles**: Crea un usuario con múltiples roles y verifica que tenga acceso a todos los endpoints correspondientes a esos roles.
 
 ---
-
-Esta documentación te ayudará a utilizar correctamente la API de autenticación del proyecto e-commerce con Postman. Si tienes alguna pregunta o problema, consulta la documentación adicional o contacta al equipo de desarrollo.
