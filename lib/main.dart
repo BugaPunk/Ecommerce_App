@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:dynamic_color/dynamic_color.dart';
+import 'package:google_fonts/google_fonts.dart';
 
 import 'providers/auth_provider.dart';
 import 'screens/login_screen.dart';
@@ -47,6 +48,9 @@ class MyApp extends StatelessWidget {
           theme: ThemeData(
             colorScheme: lightColorScheme,
             useMaterial3: true, // Enable Material 3
+            textTheme: GoogleFonts.openSansTextTheme(
+              Theme.of(context).textTheme,
+            ),
             inputDecorationTheme: InputDecorationTheme(
               filled: true,
               fillColor: lightColorScheme.surfaceVariant.withOpacity(0.1),
@@ -79,6 +83,13 @@ class MyApp extends StatelessWidget {
           darkTheme: ThemeData(
             colorScheme: darkColorScheme,
             useMaterial3: true,
+            textTheme: GoogleFonts.openSansTextTheme(
+              Theme.of(context).textTheme.copyWith(
+                // Ensure text is readable in dark mode
+                bodyLarge: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white),
+                bodyMedium: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white),
+              ),
+            ),
             inputDecorationTheme: InputDecorationTheme(
               filled: true,
               fillColor: darkColorScheme.surfaceVariant.withOpacity(0.1),
