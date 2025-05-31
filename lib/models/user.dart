@@ -1,3 +1,5 @@
+import 'user_profile_response.dart';
+
 class User {
   final int id;
   final String username;
@@ -5,6 +7,7 @@ class User {
   final String firstName;
   final String lastName;
   final List<String> roles;
+  final bool active;
 
   User({
     required this.id,
@@ -13,6 +16,7 @@ class User {
     required this.firstName,
     required this.lastName,
     required this.roles,
+    this.active = true,
   });
 
   factory User.fromJson(Map<String, dynamic> json) {
@@ -23,6 +27,19 @@ class User {
       firstName: json['firstName'] ?? '',
       lastName: json['lastName'] ?? '',
       roles: List<String>.from(json['roles']),
+      active: json['active'] ?? true,
+    );
+  }
+
+  factory User.fromProfileResponse(UserProfileResponse profile, List<String> roles) {
+    return User(
+      id: profile.id,
+      username: profile.username,
+      email: profile.email,
+      firstName: profile.firstName,
+      lastName: profile.lastName,
+      roles: roles,
+      active: profile.active,
     );
   }
 
@@ -34,6 +51,27 @@ class User {
       'firstName': firstName,
       'lastName': lastName,
       'roles': roles,
+      'active': active,
     };
+  }
+
+  User copyWith({
+    int? id,
+    String? username,
+    String? email,
+    String? firstName,
+    String? lastName,
+    List<String>? roles,
+    bool? active,
+  }) {
+    return User(
+      id: id ?? this.id,
+      username: username ?? this.username,
+      email: email ?? this.email,
+      firstName: firstName ?? this.firstName,
+      lastName: lastName ?? this.lastName,
+      roles: roles ?? this.roles,
+      active: active ?? this.active,
+    );
   }
 }

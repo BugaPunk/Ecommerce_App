@@ -99,7 +99,10 @@ class AuthService {
             'id': authResponse.id,
             'username': authResponse.username,
             'email': authResponse.email,
+            'firstName': '',
+            'lastName': '',
             'roles': authResponse.roles,
+            'active': true,
           }),
         );
 
@@ -237,5 +240,14 @@ class AuthService {
   // Get auth token
   Future<String?> getToken() async {
     return await _secureStorage.read(key: ApiConstants.tokenKey);
+  }
+
+  // Update stored user data
+  Future<void> updateStoredUser(User user) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setString(
+      ApiConstants.userKey,
+      jsonEncode(user.toJson()),
+    );
   }
 }

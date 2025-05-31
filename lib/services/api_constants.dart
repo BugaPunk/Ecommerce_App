@@ -12,6 +12,10 @@ class ApiConstants {
   static const String sessionInfoEndpoint = '/api/auth/session-info';
   static const String logoutEndpoint = '/api/auth/logout';
 
+  // Profile endpoints
+  static const String profileEndpoint = '/api/profile';
+  static const String changePasswordEndpoint = '/api/profile/change-password';
+
   // Token key for secure storage
   static const String tokenKey = 'auth_token';
   static const String userKey = 'user_data';

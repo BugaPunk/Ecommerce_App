@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../utils/responsive_layout.dart';
 import 'login_screen.dart';
+import 'profile_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -18,6 +19,14 @@ class HomeScreen extends StatelessWidget {
         title: const Text('Aplicación de Comercio Electrónico'),
         backgroundColor: Theme.of(context).colorScheme.primaryContainer,
         actions: [
+          IconButton(
+            icon: const Icon(Icons.person),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const ProfileScreen()),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
@@ -177,10 +186,24 @@ class HomeScreen extends StatelessWidget {
               ),
               const SizedBox(height: 16),
               _buildProfileInfoItem(
-                context, 
-                Icons.badge, 
-                'Perfiles', 
+                context,
+                Icons.badge,
+                'Perfiles',
                 user.roles.join(", ")
+              ),
+              const SizedBox(height: 24),
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => const ProfileScreen()),
+                  );
+                },
+                icon: const Icon(Icons.edit),
+                label: const Text('Editar Perfil'),
+                style: ElevatedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                  minimumSize: const Size(double.infinity, 50),
+                ),
               ),
               const Spacer(),
               ElevatedButton.icon(
