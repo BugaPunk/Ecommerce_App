@@ -129,93 +129,128 @@ class HomeScreen extends StatelessWidget {
   }
 
   Widget _buildMobileLayout(BuildContext context, user) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Card(
-            elevation: 4,
-            child: Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Center(
-                    child: CircleAvatar(
-                      radius: 50,
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      child: Text(
-                        user.username.substring(0, 1).toUpperCase(),
-                        style: const TextStyle(
-                          fontSize: 40,
-                          color: Colors.white,
+    return SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: CircleAvatar(
+                        radius: 50,
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        child: Text(
+                          user.username.substring(0, 1).toUpperCase(),
+                          style: const TextStyle(
+                            fontSize: 40,
+                            color: Colors.white,
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  Center(
-                    child: Text(
-                      '${user.firstName} ${user.lastName}',
-                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                    const SizedBox(height: 16),
+                    Center(
+                      child: Text(
+                        '${user.firstName} ${user.lastName}',
+                        style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Center(
+                      child: Text(
+                        '@${user.username}',
+                        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          color: Theme.of(context).colorScheme.onSurface,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    const Divider(),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Correo: ${user.email}',
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  Center(
-                    child: Text(
-                      '@${user.username}',
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    const SizedBox(height: 8),
+                    Text(
+                      'Perfiles: ${user.roles.join(", ")}',
+                      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
                         color: Theme.of(context).colorScheme.onSurface,
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-                  const Divider(),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Correo: ${user.email}',
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    'Perfiles: ${user.roles.join(", ")}',
-                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
-          ),
-          const SizedBox(height: 24),
-          Text(
-            '¡Bienvenido a la Aplicación de Comercio Electrónico!',
-            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-              color: Theme.of(context).colorScheme.onBackground,
+            const SizedBox(height: 24),
+            Text(
+              '¡Bienvenido a la Aplicación de Comercio Electrónico!',
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                color: Theme.of(context).colorScheme.onBackground,
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          Text(
-            'Esta es una aplicación de muestra que demuestra la autenticación con una API backend de Spring Boot. Puedes navegar por productos, añadirlos a tu carrito y realizar el pago.',
-            style: TextStyle(
-              fontSize: 16,
-              color: Theme.of(context).colorScheme.onBackground,
+            const SizedBox(height: 16),
+            Text(
+              'Esta es una aplicación de muestra que demuestra la autenticación con una API backend de Spring Boot. Puedes navegar por productos, añadirlos a tu carrito y realizar el pago.',
+              style: TextStyle(
+                fontSize: 16,
+                color: Theme.of(context).colorScheme.onBackground,
+              ),
             ),
-          ),
-          const SizedBox(height: 24),
-          Expanded(
-            child: Center(
+            const SizedBox(height: 24),
+            
+            // Accesos rápidos para móvil
+            if (user.roles.contains('ROLE_ADMIN'))
+              _buildMobileActionCard(
+                context,
+                Icons.admin_panel_settings,
+                'Gestión de Vendedores',
+                'Administra los usuarios vendedores',
+                Colors.deepPurple,
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const VendorListScreen(),
+                    ),
+                  );
+                },
+              ),
+            
+            _buildMobileActionCard(
+              context,
+              Icons.person,
+              'Mi Perfil',
+              'Actualiza tu información personal',
+              Colors.purple,
+              onTap: () {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const ProfileScreen()),
+                );
+              },
+            ),
+            
+            const SizedBox(height: 24),
+            Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
                     Icons.shopping_cart,
-                    size: 100,
+                    size: 80,
                     color: Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
                   ),
                   const SizedBox(height: 16),
@@ -228,8 +263,9 @@ class HomeScreen extends StatelessWidget {
                 ],
               ),
             ),
-          ),
-        ],
+            const SizedBox(height: 24),
+          ],
+        ),
       ),
     );
   }
@@ -276,9 +312,9 @@ class HomeScreen extends StatelessWidget {
               const Divider(),
               const SizedBox(height: 16),
               _buildProfileInfoItem(
-                context, 
-                Icons.email, 
-                'Correo', 
+                context,
+                Icons.email,
+                'Correo',
                 user.email
               ),
               const SizedBox(height: 16),
@@ -343,7 +379,7 @@ class HomeScreen extends StatelessWidget {
             ],
           ),
         ),
-        
+
         // Main content area
         Expanded(
           child: Padding(
@@ -354,7 +390,7 @@ class HomeScreen extends StatelessWidget {
                 Text(
                   '¡Bienvenido, ${user.firstName}!',
                   style: Theme.of(context).textTheme.headlineLarge?.copyWith(
-                    color: Theme.of(context).colorScheme.onBackground,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -362,11 +398,11 @@ class HomeScreen extends StatelessWidget {
                   'Esta es una aplicación de muestra que demuestra la autenticación con una API backend de Spring Boot. Puedes navegar por productos, añadirlos a tu carrito y realizar el pago.',
                   style: TextStyle(
                     fontSize: 18,
-                    color: Theme.of(context).colorScheme.onBackground,
+                    color: Theme.of(context).colorScheme.onSurface,
                   ),
                 ),
                 const SizedBox(height: 48),
-                
+
                 // Dashboard cards
                 Expanded(
                   child: GridView.count(
@@ -439,7 +475,7 @@ class HomeScreen extends StatelessWidget {
       ],
     );
   }
-  
+
   Widget _buildProfileInfoItem(BuildContext context, IconData icon, String label, String value) {
     return Row(
       children: [
@@ -468,11 +504,11 @@ class HomeScreen extends StatelessWidget {
       ],
     );
   }
-  
+
   Widget _buildDashboardCard(
-    BuildContext context, 
-    IconData icon, 
-    String title, 
+    BuildContext context,
+    IconData icon,
+    String title,
     String subtitle,
     Color color, {
     VoidCallback? onTap,
@@ -486,30 +522,102 @@ class HomeScreen extends StatelessWidget {
         onTap: onTap ?? () {},
         borderRadius: BorderRadius.circular(16),
         child: Padding(
-          padding: const EdgeInsets.all(24.0),
+          padding: const EdgeInsets.all(16.0), // Reducido de 24 a 16
           child: Column(
+            mainAxisSize: MainAxisSize.min, // Usar el mínimo espacio necesario
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Icon(
                 icon,
-                size: 48,
+                size: 36, // Reducido de 48 a 36
                 color: color,
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 12), // Reducido de 16 a 12
               Text(
                 title,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                style: Theme.of(context).textTheme.titleMedium?.copyWith( // Cambiado de titleLarge a titleMedium
                   color: Theme.of(context).colorScheme.onSurface,
+                  fontWeight: FontWeight.bold,
                 ),
                 textAlign: TextAlign.center,
+                maxLines: 1, // Limitar a una línea
+                overflow: TextOverflow.ellipsis, // Mostrar elipsis si es demasiado largo
               ),
-              const SizedBox(height: 8),
+              const SizedBox(height: 4), // Reducido de 8 a 4
               Text(
                 subtitle,
-                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: Theme.of(context).colorScheme.onSurface,
+                style: Theme.of(context).textTheme.bodySmall?.copyWith( // Cambiado de bodyMedium a bodySmall
+                  color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
                 ),
                 textAlign: TextAlign.center,
+                maxLines: 2, // Limitar a dos líneas
+                overflow: TextOverflow.ellipsis, // Mostrar elipsis si es demasiado largo
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildMobileActionCard(
+    BuildContext context,
+    IconData icon,
+    String title,
+    String subtitle,
+    Color color, {
+    VoidCallback? onTap,
+  }) {
+    return Card(
+      elevation: 4,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: InkWell(
+        onTap: onTap ?? () {},
+        borderRadius: BorderRadius.circular(16),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: color.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(
+                  icon,
+                  size: 32,
+                  color: color,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurface,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      subtitle,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Icon(
+                Icons.arrow_forward_ios,
+                size: 16,
+                color: Theme.of(context).colorScheme.onSurface.withOpacity(0.5),
               ),
             ],
           ),

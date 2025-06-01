@@ -99,21 +99,25 @@ class _VendorFormScreenState extends State<VendorFormScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Encabezado
-                const Icon(
+                Icon(
                   Icons.person_add,
                   size: 48,
-                  color: Colors.blue,
+                  color: Theme.of(context).colorScheme.primary,
                 ),
                 const SizedBox(height: 16),
                 Text(
                   'Crear Nuevo Vendedor',
-                  style: Theme.of(context).textTheme.headlineSmall,
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    color: Theme.of(context).colorScheme.onSurface,
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
                 Text(
                   'Complete el formulario para crear un nuevo usuario con rol de vendedor',
-                  style: TextStyle(color: Colors.grey.shade600),
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
+                  ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 24),
@@ -123,7 +127,39 @@ class _VendorFormScreenState extends State<VendorFormScreen> {
                 // Formulario
                 _buildFormFields(context, adminProvider),
                 const SizedBox(height: 24),
-                _buildSubmitButton(adminProvider),
+                
+                // Botones de acción
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    ElevatedButton.icon(
+                      onPressed: adminProvider.loading ? null : _createVendor,
+                      icon: adminProvider.loading
+                          ? const SizedBox(
+                              width: 20,
+                              height: 20,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.save),
+                      label: Text(adminProvider.loading ? 'Creando...' : 'Crear Vendedor'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Theme.of(context).colorScheme.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+                    OutlinedButton.icon(
+                      onPressed: adminProvider.loading
+                          ? null
+                          : () {
+                              Navigator.of(context).pop();
+                            },
+                      icon: const Icon(Icons.cancel),
+                      label: const Text('Cancelar'),
+                    ),
+                  ],
+                ),
               ],
             ),
           ),
@@ -135,7 +171,7 @@ class _VendorFormScreenState extends State<VendorFormScreen> {
   Widget _buildDesktopLayout(BuildContext context, AdminProvider adminProvider) {
     return Center(
       child: Container(
-        constraints: const BoxConstraints(maxWidth: 900),
+        constraints: const BoxConstraints(maxWidth: 1200),
         padding: const EdgeInsets.all(32.0),
         child: Card(
           shape: RoundedRectangleBorder(
@@ -143,10 +179,11 @@ class _VendorFormScreenState extends State<VendorFormScreen> {
           ),
           elevation: 4,
           child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               // Panel lateral izquierdo
               Container(
-                width: 300,
+                width: 320,
                 padding: const EdgeInsets.all(32.0),
                 decoration: BoxDecoration(
                   color: Theme.of(context).colorScheme.primaryContainer,
@@ -199,11 +236,13 @@ class _VendorFormScreenState extends State<VendorFormScreen> {
                                 color: Theme.of(context).colorScheme.onPrimaryContainer,
                               ),
                               const SizedBox(width: 8),
-                              Text(
-                                'Información',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                              Expanded(
+                                child: Text(
+                                  'Información',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Theme.of(context).colorScheme.onPrimaryContainer,
+                                  ),
                                 ),
                               ),
                             ],
@@ -213,6 +252,34 @@ class _VendorFormScreenState extends State<VendorFormScreen> {
                             'Los vendedores podrán gestionar productos y ver sus ventas en la plataforma.',
                             style: TextStyle(
                               color: Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.8),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const Spacer(),
+                    // Añadimos un indicador de campos requeridos
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.05),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.star,
+                            size: 16,
+                            color: Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.7),
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'Todos los campos son obligatorios excepto Nombre y Apellido',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: Theme.of(context).colorScheme.onPrimaryContainer.withOpacity(0.7),
+                              ),
                             ),
                           ),
                         ],
@@ -231,18 +298,76 @@ class _VendorFormScreenState extends State<VendorFormScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          'Información del Vendedor',
-                          style: Theme.of(context).textTheme.titleLarge,
+                        // Encabezado con botón de volver
+                        Row(
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.arrow_back),
+                              tooltip: 'Volver a la lista',
+                              onPressed: () {
+                                Navigator.of(context).pop();
+                              },
+                            ),
+                            const SizedBox(width: 16),
+                            Text(
+                              'Información del Vendedor',
+                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurface,
+                              ),
+                            ),
+                          ],
                         ),
                         const SizedBox(height: 24),
+                        
+                        // Formulario con scroll
                         Expanded(
                           child: SingleChildScrollView(
                             child: _buildFormFields(context, adminProvider),
                           ),
                         ),
+                        
+                        // Botones de acción
                         const SizedBox(height: 24),
-                        _buildSubmitButton(adminProvider),
+                        Row(
+                          children: [
+                            // Botón de cancelar
+                            Expanded(
+                              child: OutlinedButton.icon(
+                                onPressed: adminProvider.loading
+                                    ? null
+                                    : () {
+                                        Navigator.of(context).pop();
+                                      },
+                                icon: const Icon(Icons.cancel),
+                                label: const Text('Cancelar'),
+                                style: OutlinedButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 16),
+                            // Botón de crear
+                            Expanded(
+                              flex: 2,
+                              child: ElevatedButton.icon(
+                                onPressed: adminProvider.loading ? null : _createVendor,
+                                icon: adminProvider.loading
+                                    ? const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(strokeWidth: 2),
+                                      )
+                                    : const Icon(Icons.save),
+                                label: Text(adminProvider.loading ? 'Creando...' : 'Crear Vendedor'),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Theme.of(context).colorScheme.primary,
+                                  foregroundColor: Colors.white,
+                                  padding: const EdgeInsets.symmetric(vertical: 16),
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -256,10 +381,40 @@ class _VendorFormScreenState extends State<VendorFormScreen> {
   }
 
   Widget _buildFormFields(BuildContext context, AdminProvider adminProvider) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        TextFormField(
+    // Determinar si estamos en modo escritorio o móvil
+    final isDesktop = MediaQuery.of(context).size.width > 800;
+    
+    // Widget para mostrar el mensaje de error
+    final errorWidget = adminProvider.errorMessage != null
+        ? Container(
+            margin: const EdgeInsets.only(top: 24),
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.red.shade50,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.red.shade200),
+            ),
+            child: Row(
+              children: [
+                Icon(Icons.error_outline, color: Colors.red.shade700),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    adminProvider.errorMessage!,
+                    style: TextStyle(color: Colors.red.shade700),
+                  ),
+                ),
+              ],
+            ),
+          )
+        : const SizedBox.shrink();
+    
+    // Campos de formulario requeridos
+    final requiredFields = [
+      // Nombre de usuario
+      Padding(
+        padding: const EdgeInsets.only(bottom: 16),
+        child: TextFormField(
           controller: _usernameController,
           decoration: const InputDecoration(
             labelText: 'Nombre de Usuario',
@@ -279,8 +434,12 @@ class _VendorFormScreenState extends State<VendorFormScreen> {
             return null;
           },
         ),
-        const SizedBox(height: 16),
-        TextFormField(
+      ),
+      
+      // Correo electrónico
+      Padding(
+        padding: const EdgeInsets.only(bottom: 16),
+        child: TextFormField(
           controller: _emailController,
           decoration: const InputDecoration(
             labelText: 'Correo Electrónico',
@@ -301,8 +460,12 @@ class _VendorFormScreenState extends State<VendorFormScreen> {
             return null;
           },
         ),
-        const SizedBox(height: 16),
-        TextFormField(
+      ),
+      
+      // Contraseña
+      Padding(
+        padding: const EdgeInsets.only(bottom: 16),
+        child: TextFormField(
           controller: _passwordController,
           obscureText: _obscurePassword,
           decoration: InputDecoration(
@@ -333,8 +496,12 @@ class _VendorFormScreenState extends State<VendorFormScreen> {
             return null;
           },
         ),
-        const SizedBox(height: 16),
-        TextFormField(
+      ),
+      
+      // Confirmar contraseña
+      Padding(
+        padding: const EdgeInsets.only(bottom: 16),
+        child: TextFormField(
           controller: _confirmPasswordController,
           obscureText: _obscureConfirmPassword,
           decoration: InputDecoration(
@@ -361,13 +528,26 @@ class _VendorFormScreenState extends State<VendorFormScreen> {
             return null;
           },
         ),
-        const SizedBox(height: 24),
-        Text(
-          'Información Personal (Opcional)',
-          style: Theme.of(context).textTheme.titleMedium,
+      ),
+    ];
+    
+    // Título de información personal
+    final personalInfoTitle = Padding(
+      padding: const EdgeInsets.only(bottom: 16, top: 8),
+      child: Text(
+        'Información Personal (Opcional)',
+        style: Theme.of(context).textTheme.titleMedium?.copyWith(
+          color: Theme.of(context).colorScheme.onSurface,
         ),
-        const SizedBox(height: 16),
-        TextFormField(
+      ),
+    );
+    
+    // Campos de información personal
+    final personalInfoFields = [
+      // Nombre
+      Padding(
+        padding: const EdgeInsets.only(bottom: 16),
+        child: TextFormField(
           controller: _firstNameController,
           decoration: const InputDecoration(
             labelText: 'Nombre',
@@ -381,8 +561,12 @@ class _VendorFormScreenState extends State<VendorFormScreen> {
             return null;
           },
         ),
-        const SizedBox(height: 16),
-        TextFormField(
+      ),
+      
+      // Apellido
+      Padding(
+        padding: const EdgeInsets.only(bottom: 16),
+        child: TextFormField(
           controller: _lastNameController,
           decoration: const InputDecoration(
             labelText: 'Apellido',
@@ -396,64 +580,64 @@ class _VendorFormScreenState extends State<VendorFormScreen> {
             return null;
           },
         ),
-        if (adminProvider.errorMessage != null) ...[
-          const SizedBox(height: 24),
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.red.shade50,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Colors.red.shade200),
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.error_outline, color: Colors.red.shade700),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    adminProvider.errorMessage!,
-                    style: TextStyle(color: Colors.red.shade700),
-                  ),
+      ),
+    ];
+    
+    // Diseño para escritorio (dos columnas)
+    if (isDesktop) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Campos requeridos y opcionales en dos columnas
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Columna izquierda - Campos requeridos
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: requiredFields,
                 ),
-              ],
-            ),
+              ),
+              
+              const SizedBox(width: 32), // Espacio entre columnas
+              
+              // Columna derecha - Información personal
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    personalInfoTitle,
+                    ...personalInfoFields,
+                  ],
+                ),
+              ),
+            ],
           ),
+          
+          // Mensaje de error (si existe)
+          errorWidget,
         ],
-      ],
-    );
+      );
+    } 
+    // Diseño para móvil (una columna)
+    else {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Campos requeridos
+          ...requiredFields,
+          
+          // Información personal
+          personalInfoTitle,
+          ...personalInfoFields,
+          
+          // Mensaje de error (si existe)
+          errorWidget,
+        ],
+      );
+    }
   }
 
-  Widget _buildSubmitButton(AdminProvider adminProvider) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        ElevatedButton.icon(
-          onPressed: adminProvider.loading ? null : _createVendor,
-          icon: adminProvider.loading
-              ? const SizedBox(
-                  width: 20,
-                  height: 20,
-                  child: CircularProgressIndicator(strokeWidth: 2),
-                )
-              : const Icon(Icons.save),
-          label: Text(adminProvider.loading ? 'Creando...' : 'Crear Vendedor'),
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Theme.of(context).colorScheme.primary,
-            foregroundColor: Colors.white,
-            padding: const EdgeInsets.symmetric(vertical: 16),
-          ),
-        ),
-        const SizedBox(height: 16),
-        OutlinedButton.icon(
-          onPressed: adminProvider.loading
-              ? null
-              : () {
-                  Navigator.of(context).pop();
-                },
-          icon: const Icon(Icons.cancel),
-          label: const Text('Cancelar'),
-        ),
-      ],
-    );
-  }
+
 }

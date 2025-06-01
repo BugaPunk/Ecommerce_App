@@ -72,15 +72,17 @@ class _LoginScreenState extends State<LoginScreen> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              const Icon(
+              Icon(
                 Icons.shopping_cart,
                 size: 100,
-                color: Colors.deepPurple,
+                color: Theme.of(context).colorScheme.primary,
               ),
               const SizedBox(height: 32),
               Text(
                 'Bienvenido de Nuevo',
-                style: Theme.of(context).textTheme.headlineMedium,
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 32),
@@ -150,7 +152,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       children: [
                         Text(
                           'Bienvenido de Nuevo',
-                          style: Theme.of(context).textTheme.headlineLarge,
+                          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                            color: Theme.of(context).colorScheme.onBackground,
+                          ),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 48),

@@ -91,7 +91,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
             children: [
               Text(
                 'Crear Cuenta',
-                style: Theme.of(context).textTheme.headlineMedium,
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onBackground,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 32),
@@ -161,7 +163,9 @@ class _RegisterScreenState extends State<RegisterScreen> {
                       children: [
                         Text(
                           'Crear Cuenta',
-                          style: Theme.of(context).textTheme.headlineLarge,
+                          style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                            color: Theme.of(context).colorScheme.onBackground,
+                          ),
                           textAlign: TextAlign.center,
                         ),
                         const SizedBox(height: 48),
