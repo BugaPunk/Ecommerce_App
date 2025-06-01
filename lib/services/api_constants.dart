@@ -16,6 +16,10 @@ class ApiConstants {
   static const String profileEndpoint = '/api/profile';
   static const String changePasswordEndpoint = '/api/profile/change-password';
 
+  // Admin endpoints
+  static const String adminVendorsEndpoint = '/api/admin/usuarios/vendedores';
+  static const String adminUsersEndpoint = '/api/admin/usuarios';
+
   // Token key for secure storage
   static const String tokenKey = 'auth_token';
   static const String userKey = 'user_data';

@@ -5,6 +5,7 @@ import '../providers/auth_provider.dart';
 import '../utils/responsive_layout.dart';
 import 'login_screen.dart';
 import 'profile_screen.dart';
+import 'admin/vendor_list_screen.dart';
 
 class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
@@ -47,6 +48,83 @@ class HomeScreen extends StatelessWidget {
               mobile: _buildMobileLayout(context, user),
               desktop: _buildDesktopLayout(context, user),
             ),
+      drawer: user != null && user.roles.contains('ROLE_ADMIN')
+          ? _buildAdminDrawer(context)
+          : null,
+    );
+  }
+  
+  Widget _buildAdminDrawer(BuildContext context) {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DrawerHeader(
+            decoration: BoxDecoration(
+              color: Theme.of(context).colorScheme.primary,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Icon(
+                  Icons.admin_panel_settings,
+                  color: Colors.white,
+                  size: 48,
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  'Panel de Administración',
+                  style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                        color: Colors.white,
+                      ),
+                ),
+                Text(
+                  'Gestión de la plataforma',
+                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                        color: Colors.white.withOpacity(0.8),
+                      ),
+                ),
+              ],
+            ),
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.people,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+            title: Text(
+              'Gestión de Vendedores',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            onTap: () {
+              Navigator.pop(context); // Cerrar el drawer
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const VendorListScreen(),
+                ),
+              );
+            },
+          ),
+          const Divider(),
+          ListTile(
+            leading: Icon(
+              Icons.dashboard,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+            title: Text(
+              'Volver al Inicio',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            onTap: () {
+              Navigator.pop(context); // Cerrar el drawer
+            },
+          ),
+        ],
+      ),
     );
   }
 
@@ -80,14 +158,18 @@ class HomeScreen extends StatelessWidget {
                   Center(
                     child: Text(
                       '${user.firstName} ${user.lastName}',
-                      style: Theme.of(context).textTheme.headlineMedium,
+                      style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 8),
                   Center(
                     child: Text(
                       '@${user.username}',
-                      style: Theme.of(context).textTheme.titleMedium,
+                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                        color: Theme.of(context).colorScheme.onSurface,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 16),
@@ -95,12 +177,16 @@ class HomeScreen extends StatelessWidget {
                   const SizedBox(height: 8),
                   Text(
                     'Correo: ${user.email}',
-                    style: Theme.of(context).textTheme.bodyLarge,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Perfiles: ${user.roles.join(", ")}',
-                    style: Theme.of(context).textTheme.bodyLarge,
+                    style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.onSurface,
+                    ),
                   ),
                 ],
               ),
@@ -109,12 +195,17 @@ class HomeScreen extends StatelessWidget {
           const SizedBox(height: 24),
           Text(
             '¡Bienvenido a la Aplicación de Comercio Electrónico!',
-            style: Theme.of(context).textTheme.headlineSmall,
+            style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              color: Theme.of(context).colorScheme.onBackground,
+            ),
           ),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             'Esta es una aplicación de muestra que demuestra la autenticación con una API backend de Spring Boot. Puedes navegar por productos, añadirlos a tu carrito y realizar el pago.',
-            style: TextStyle(fontSize: 16),
+            style: TextStyle(
+              fontSize: 16,
+              color: Theme.of(context).colorScheme.onBackground,
+            ),
           ),
           const SizedBox(height: 24),
           Expanded(
@@ -122,15 +213,17 @@ class HomeScreen extends StatelessWidget {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
+                  Icon(
                     Icons.shopping_cart,
                     size: 100,
-                    color: Colors.grey,
+                    color: Theme.of(context).colorScheme.onBackground.withOpacity(0.3),
                   ),
                   const SizedBox(height: 16),
                   Text(
                     '¡Productos próximamente!',
-                    style: Theme.of(context).textTheme.titleLarge,
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                      color: Theme.of(context).colorScheme.onBackground,
+                    ),
                   ),
                 ],
               ),
@@ -167,13 +260,17 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: 24),
               Text(
                 '${user.firstName} ${user.lastName}',
-                style: Theme.of(context).textTheme.headlineMedium,
+                style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
               Text(
                 '@${user.username}',
-                style: Theme.of(context).textTheme.titleMedium,
+                style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
               ),
               const SizedBox(height: 24),
               const Divider(),
@@ -205,6 +302,26 @@ class HomeScreen extends StatelessWidget {
                   minimumSize: const Size(double.infinity, 50),
                 ),
               ),
+              if (user.roles.contains('ROLE_ADMIN')) ...[
+                const SizedBox(height: 16),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const VendorListScreen(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.admin_panel_settings),
+                  label: const Text('Gestión de Vendedores'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Theme.of(context).colorScheme.secondary,
+                    foregroundColor: Theme.of(context).colorScheme.onSecondary,
+                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                    minimumSize: const Size(double.infinity, 50),
+                  ),
+                ),
+              ],
               const Spacer(),
               ElevatedButton.icon(
                 onPressed: () async {
@@ -236,12 +353,17 @@ class HomeScreen extends StatelessWidget {
               children: [
                 Text(
                   '¡Bienvenido, ${user.firstName}!',
-                  style: Theme.of(context).textTheme.headlineLarge,
+                  style: Theme.of(context).textTheme.headlineLarge?.copyWith(
+                    color: Theme.of(context).colorScheme.onBackground,
+                  ),
                 ),
                 const SizedBox(height: 24),
-                const Text(
+                Text(
                   'Esta es una aplicación de muestra que demuestra la autenticación con una API backend de Spring Boot. Puedes navegar por productos, añadirlos a tu carrito y realizar el pago.',
-                  style: TextStyle(fontSize: 18),
+                  style: TextStyle(
+                    fontSize: 18,
+                    color: Theme.of(context).colorScheme.onBackground,
+                  ),
                 ),
                 const SizedBox(height: 48),
                 
@@ -252,6 +374,21 @@ class HomeScreen extends StatelessWidget {
                     crossAxisSpacing: 24,
                     mainAxisSpacing: 24,
                     children: [
+                      if (user.roles.contains('ROLE_ADMIN'))
+                        _buildDashboardCard(
+                          context,
+                          Icons.admin_panel_settings,
+                          'Gestión de Vendedores',
+                          'Administra los usuarios vendedores',
+                          Colors.deepPurple,
+                          onTap: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => const VendorListScreen(),
+                              ),
+                            );
+                          },
+                        ),
                       _buildDashboardCard(
                         context,
                         Icons.shopping_bag,
@@ -286,13 +423,11 @@ class HomeScreen extends StatelessWidget {
                         'Perfil',
                         'Actualiza tu información personal',
                         Colors.purple,
-                      ),
-                      _buildDashboardCard(
-                        context,
-                        Icons.settings,
-                        'Configuración',
-                        'Personaliza tu experiencia',
-                        Colors.teal,
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(builder: (context) => const ProfileScreen()),
+                          );
+                        },
                       ),
                     ],
                   ),
@@ -322,7 +457,9 @@ class HomeScreen extends StatelessWidget {
               ),
               Text(
                 value,
-                style: Theme.of(context).textTheme.bodyLarge,
+                style: Theme.of(context).textTheme.bodyLarge?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
                 overflow: TextOverflow.ellipsis,
               ),
             ],
@@ -337,15 +474,16 @@ class HomeScreen extends StatelessWidget {
     IconData icon, 
     String title, 
     String subtitle,
-    Color color,
-  ) {
+    Color color, {
+    VoidCallback? onTap,
+  }) {
     return Card(
       elevation: 4,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(16),
       ),
       child: InkWell(
-        onTap: () {},
+        onTap: onTap ?? () {},
         borderRadius: BorderRadius.circular(16),
         child: Padding(
           padding: const EdgeInsets.all(24.0),
@@ -360,13 +498,17 @@ class HomeScreen extends StatelessWidget {
               const SizedBox(height: 16),
               Text(
                 title,
-                style: Theme.of(context).textTheme.titleLarge,
+                style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
                 textAlign: TextAlign.center,
               ),
               const SizedBox(height: 8),
               Text(
                 subtitle,
-                style: Theme.of(context).textTheme.bodyMedium,
+                style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                  color: Theme.of(context).colorScheme.onSurface,
+                ),
                 textAlign: TextAlign.center,
               ),
             ],
