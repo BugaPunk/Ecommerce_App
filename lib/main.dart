@@ -7,6 +7,7 @@ import 'providers/auth_provider.dart';
 import 'providers/admin_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/splash/splash_screen.dart';
 
 void main() {
   runApp(
@@ -122,7 +123,11 @@ class MyApp extends StatelessWidget {
             ),
           ),
           themeMode: ThemeMode.system, // Follow system theme
-          home: _buildHomeScreen(authProvider),
+          // Show splash screen first, then handle authentication
+          home: const SplashScreen(),
+          routes: {
+            SplashScreen.routeName: (context) => const SplashScreen(),
+          },
         );
       },
     );
