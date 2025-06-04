@@ -537,7 +537,9 @@ class _VendorListScreenState extends State<VendorListScreen> {
                           children: [
                             Text(
                               'Vendedores Registrados',
-                              style: Theme.of(context).textTheme.titleLarge,
+                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                color: Theme.of(context).colorScheme.onSurface, // Adaptar al tema oscuro
+                              ),
                             ),
                             const Spacer(),
                             // Campo de búsqueda
