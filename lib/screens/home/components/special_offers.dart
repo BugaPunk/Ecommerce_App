@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../../../utils/responsive_layout.dart';
 import '../../../utils/size_config.dart';
 import 'section_title.dart';
 
@@ -11,35 +12,100 @@ class SpecialOffers extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Determinar si estamos en escritorio o móvil
+    final isDesktop = ResponsiveLayout.isDesktop(context);
+    final isTablet = ResponsiveLayout.isTablet(context);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isLargeDesktop = screenWidth > 1400;
+    
     return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         SectionTitle(
           text: "Especial para ti",
           press: (){},
         ),
         SizedBox(height: getProportionateScreenWidth(20)),
-        SingleChildScrollView(
-          scrollDirection: Axis.horizontal,
-          child: Row(
-            children: [
-              //Aqui esta el carrusel con parametros
-              SpecialOfferCard(
-                image: "assets/images/banner_1.jpg",
-                category: "Smartphones",
-                numOfBrands: 18,
-                press: (){} ,
-              ),
-              SpecialOfferCard(
-                image: "assets/images/banner_2.jpg",
-                category: "Moda",
-                numOfBrands: 24,
-                press: (){} ,
-              ),
-              SizedBox(width: getProportionateScreenWidth(20)),
-            ],
-          ),
-        ),
+        
+        // En escritorio grande, mostrar ofertas en grid
+        if (isLargeDesktop)
+          _buildDesktopSpecialOffersGrid(context)
+        // En tablet o escritorio pequeño, mostrar ofertas en fila con scroll
+        else
+          _buildSpecialOffersCarousel(context, isDesktop || isTablet),
       ],
+    );
+  }
+  
+  // Grid de ofertas especiales para escritorio grande
+  Widget _buildDesktopSpecialOffersGrid(BuildContext context) {
+    // Lista de ofertas especiales
+    final List<Map<String, dynamic>> offers = [
+      {
+        "image": "assets/images/banner_1.jpg",
+        "category": "Smartphones",
+        "numOfBrands": 18,
+      },
+      {
+        "image": "assets/images/banner_2.jpg",
+        "category": "Moda",
+        "numOfBrands": 24,
+      },
+    ];
+    
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: getProportionateScreenWidth(20)),
+      child: GridView.builder(
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 2,
+          childAspectRatio: 2.5, // Proporción ancho/alto de cada elemento
+          crossAxisSpacing: 20,
+          mainAxisSpacing: 20,
+        ),
+        itemCount: offers.length,
+        itemBuilder: (context, index) {
+          return SpecialOfferCard(
+            image: offers[index]["image"],
+            category: offers[index]["category"],
+            numOfBrands: offers[index]["numOfBrands"],
+            press: (){},
+          );
+        },
+      ),
+    );
+  }
+  
+  // Carrusel de ofertas especiales para móvil y escritorio pequeño
+  Widget _buildSpecialOffersCarousel(BuildContext context, bool isDesktopOrTablet) {
+    // Ajustar el padding según el dispositivo
+    final double horizontalPadding = isDesktopOrTablet ? 20.0 : getProportionateScreenWidth(20);
+    
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+        child: Row(
+          children: [
+            //Aqui esta el carrusel con parametros
+            SpecialOfferCard(
+              image: "assets/images/banner_1.jpg",
+              category: "Smartphones",
+              numOfBrands: 18,
+              press: (){} ,
+            ),
+            SizedBox(width: isDesktopOrTablet ? 20 : getProportionateScreenWidth(20)),
+            SpecialOfferCard(
+              image: "assets/images/banner_2.jpg",
+              category: "Moda",
+              numOfBrands: 24,
+              press: (){} ,
+            ),
+            SizedBox(width: isDesktopOrTablet ? 20 : getProportionateScreenWidth(20)),
+          ],
+        ),
+      ),
     );
   }
 }

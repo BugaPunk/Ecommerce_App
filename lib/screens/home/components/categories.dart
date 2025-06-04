@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../../../utils/constants.dart';
+import '../../../utils/responsive_layout.dart';
 import '../../../utils/size_config.dart';
 
 class Categories extends StatelessWidget {
@@ -15,11 +16,33 @@ class Categories extends StatelessWidget {
       {"icon": Icons.sports_esports, "text": "Juegos"},
       {"icon": Icons.kitchen, "text": "Cocina"},
       {"icon": Icons.cleaning_services, "text": "Aseo"},
+      {"icon": Icons.laptop, "text": "Computadoras"},
+      {"icon": Icons.headphones, "text": "Audio"},
+      {"icon": Icons.watch, "text": "Relojes"},
     ];
     
+    // Determinar si estamos en escritorio o móvil
+    final isDesktop = ResponsiveLayout.isDesktop(context);
+    final isTablet = ResponsiveLayout.isTablet(context);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isLargeDesktop = screenWidth > 1400;
+    
+    // Ajustar el padding según el dispositivo
+    final double horizontalPadding = isDesktop || isTablet 
+        ? 0.0 
+        : getProportionateScreenWidth(20);
+    
+    // En escritorio, mostrar categorías en grid
+    if (isDesktop && isLargeDesktop) {
+      return Padding(
+        padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
+        child: _buildCategoriesGrid(context, categories),
+      );
+    }
+    
+    // En tablet o móvil, mostrar categorías en fila con scroll
     return Padding(
-      padding:
-      EdgeInsets.symmetric(horizontal: getProportionateScreenWidth(20)),
+      padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
         child: Row(
@@ -29,7 +52,7 @@ class Categories extends StatelessWidget {
             ...List.generate(
               categories.length,
               (index) => Padding(
-                padding: EdgeInsets.only(right: getProportionateScreenWidth(15)),
+                padding: EdgeInsets.only(right: isDesktop ? 20 : getProportionateScreenWidth(15)),
                 child: CategoryCard(
                   icon: categories[index]["icon"],
                   text: categories[index]["text"],
@@ -40,6 +63,28 @@ class Categories extends StatelessWidget {
           ],
         ),
       ),
+    );
+  }
+  
+  // Grid de categorías para escritorio grande
+  Widget _buildCategoriesGrid(BuildContext context, List<Map<String, dynamic>> categories) {
+    return GridView.builder(
+      shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 4, // 4 columnas para escritorio grande
+        childAspectRatio: 1.0, // Proporción cuadrada
+        crossAxisSpacing: 15,
+        mainAxisSpacing: 15,
+      ),
+      itemCount: categories.length,
+      itemBuilder: (context, index) {
+        return CategoryCard(
+          icon: categories[index]["icon"],
+          text: categories[index]["text"],
+          press: (){},
+        );
+      },
     );
   }
 }
