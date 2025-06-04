@@ -23,14 +23,19 @@ class DefaultButton extends StatelessWidget {
     double buttonHeight;
     double fontSize;
     
+    // Obtener el ancho de la pantalla para ajustes adicionales
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isExtraLargeScreen = screenWidth > 1800;
+    
     switch (deviceType) {
       case DeviceType.desktop:
+        // Reducir el tamaño de fuente en pantallas grandes
         buttonHeight = 60;
-        fontSize = 20;
+        fontSize = isExtraLargeScreen ? 16 : 18;
         break;
       case DeviceType.tablet:
         buttonHeight = 58;
-        fontSize = 19;
+        fontSize = 17;
         break;
       case DeviceType.mobile:
       default:

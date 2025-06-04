@@ -136,10 +136,13 @@ class DiscountBanner extends StatelessWidget {
     double titleFontSize, 
     double discountFontSize
   ) {
+    // Ajustar la altura para evitar desbordamiento
+    final double bannerHeight = 200.0;
+    
     return Container(
       margin: EdgeInsets.symmetric(horizontal: horizontalMargin),
       width: double.infinity,
-      height: 180,
+      height: bannerHeight,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         boxShadow: [
@@ -191,6 +194,7 @@ class DiscountBanner extends StatelessWidget {
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min, // Usar el mínimo espacio necesario
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Text(
@@ -208,7 +212,7 @@ class DiscountBanner extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 8), // Reducir el espaciado
                   Text(
                     "Descuento 30%",
                     style: TextStyle(
@@ -224,13 +228,14 @@ class DiscountBanner extends StatelessWidget {
                       ],
                     ),
                   ),
-                  const SizedBox(height: 15),
+                  const SizedBox(height: 12), // Reducir el espaciado
                   ElevatedButton(
                     onPressed: () {},
                     style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.white,
                       foregroundColor: const Color(0xFF4A3298),
-                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8), // Reducir el padding vertical
+                      minimumSize: const Size(120, 36), // Tamaño mínimo para el botón
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -239,6 +244,7 @@ class DiscountBanner extends StatelessWidget {
                       "Comprar Ahora",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
+                        fontSize: 14, // Tamaño de fuente más pequeño
                       ),
                     ),
                   ),

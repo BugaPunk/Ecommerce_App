@@ -125,60 +125,86 @@ class SpecialOfferCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // Obtener el tamaño de la pantalla para ajustes responsivos
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isDesktop = screenWidth > 1100;
-    final isTablet = screenWidth > 600 && screenWidth <= 1100;
-    final isMobile = screenWidth <= 600;
+    // Determinar si estamos en escritorio o móvil
+    final isDesktop = ResponsiveLayout.isDesktop(context);
+    final isTablet = ResponsiveLayout.isTablet(context);
+    final isLargeDesktop = ResponsiveLayout.isLargeDesktop(context);
     
     // Ajustar dimensiones según el dispositivo
-    final double cardWidth = isDesktop 
-        ? 300 
-        : isTablet 
+    final double cardWidth = isLargeDesktop 
+        ? 280 
+        : isDesktop 
             ? 260 
-            : getProportionateScreenWidth(242);
+            : isTablet 
+                ? 240 
+                : getProportionateScreenWidth(242);
     
-    final double cardHeight = isDesktop 
-        ? 120 
-        : isTablet 
-            ? 110 
-            : getProportionateScreenWidth(100);
+    final double cardHeight = isLargeDesktop 
+        ? 110 
+        : isDesktop 
+            ? 100 
+            : isTablet 
+                ? 90 
+                : getProportionateScreenWidth(100);
     
-    final double fontSize = isDesktop 
-        ? 20 
-        : isTablet 
-            ? 18 
-            : getProportionateScreenWidth(18);
+    final double fontSize = isLargeDesktop 
+        ? 18 
+        : isDesktop 
+            ? 16 
+            : isTablet 
+                ? 15 
+                : getProportionateScreenWidth(18);
     
-    final double subFontSize = isDesktop 
-        ? 14 
-        : isTablet 
-            ? 13 
-            : getProportionateScreenWidth(12);
-    
-    final double horizontalPadding = isDesktop 
-        ? 20 
-        : isTablet 
-            ? 18 
-            : getProportionateScreenWidth(15);
-    
-    final double verticalPadding = isDesktop 
-        ? 15 
-        : isTablet 
+    final double subFontSize = isLargeDesktop 
+        ? 13 
+        : isDesktop 
             ? 12 
-            : getProportionateScreenWidth(10);
+            : isTablet 
+                ? 11 
+                : getProportionateScreenWidth(12);
+    
+    final double horizontalPadding = isLargeDesktop 
+        ? 18 
+        : isDesktop 
+            ? 16 
+            : isTablet 
+                ? 14 
+                : getProportionateScreenWidth(15);
+    
+    final double verticalPadding = isLargeDesktop 
+        ? 12 
+        : isDesktop 
+            ? 10 
+            : isTablet 
+                ? 8 
+                : getProportionateScreenWidth(10);
+    
+    final double leftPadding = isDesktop || isTablet 
+        ? 0 
+        : getProportionateScreenWidth(20);
     
     return Padding(
-      padding: EdgeInsets.only(left: getProportionateScreenWidth(20)),
+      padding: EdgeInsets.only(left: leftPadding),
       child: GestureDetector(
         onTap: press,
-        child: SizedBox(
+        child: Container(
           width: cardWidth,
           height: cardHeight,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(isDesktop ? 15 : 20),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.1),
+                blurRadius: 10,
+                offset: const Offset(0, 5),
+              ),
+            ],
+          ),
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
+            borderRadius: BorderRadius.circular(isDesktop ? 15 : 20),
             child: Stack(
               children: [
+                // Imagen de fondo
                 Image.asset(
                   image,
                   fit: BoxFit.cover,
@@ -190,13 +216,14 @@ class SpecialOfferCard extends StatelessWidget {
                       child: Center(
                         child: Icon(
                           Icons.image_not_supported_outlined,
-                          size: isDesktop ? 60 : 40,
+                          size: isDesktop ? 30 : 40,
                           color: Colors.grey,
                         ),
                       ),
                     );
                   },
                 ),
+                // Gradiente para mejorar legibilidad
                 Container(
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
@@ -209,6 +236,7 @@ class SpecialOfferCard extends StatelessWidget {
                     ),
                   ),
                 ),
+                // Contenido de texto
                 Padding(
                   padding: EdgeInsets.symmetric(
                     horizontal: horizontalPadding,
@@ -249,6 +277,38 @@ class SpecialOfferCard extends StatelessWidget {
                     )
                   ),
                 ),
+                // Botón de acción en escritorio
+                if (isDesktop)
+                  Positioned(
+                    bottom: 8,
+                    right: 8,
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.9),
+                        borderRadius: BorderRadius.circular(15),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.black.withOpacity(0.1),
+                            blurRadius: 5,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                      child: IconButton(
+                        icon: const Icon(
+                          Icons.arrow_forward,
+                          color: Color(0xFF343434),
+                          size: 16,
+                        ),
+                        padding: const EdgeInsets.all(4),
+                        constraints: const BoxConstraints(
+                          minWidth: 24,
+                          minHeight: 24,
+                        ),
+                        onPressed: () => press(),
+                      ),
+                    ),
+                  ),
               ],
             ),
           ),

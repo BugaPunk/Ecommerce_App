@@ -30,18 +30,44 @@ class HomeHeader extends StatelessWidget {
         : getProportionateScreenWidth(20);
     
     final double iconSpacing = isDesktop 
-        ? 15.0 
-        : getProportionateScreenWidth(5);
+        ? 12.0 
+        : isTablet
+            ? 10.0
+            : getProportionateScreenWidth(5);
     
     final double searchFieldSpacing = isDesktop 
-        ? 20.0 
-        : getProportionateScreenWidth(10);
+        ? 15.0 
+        : isTablet
+            ? 12.0
+            : getProportionateScreenWidth(10);
     
     final double avatarSize = isDesktop 
-        ? 20.0 
-        : getProportionateScreenWidth(15);
+        ? 18.0 
+        : isTablet
+            ? 16.0
+            : getProportionateScreenWidth(15);
     
-    final double avatarFontSize = isDesktop ? 16.0 : 14.0;
+    final double avatarFontSize = isDesktop 
+        ? 14.0 
+        : isTablet
+            ? 12.0
+            : 10.0;
+    
+    final double logoHeight = isDesktop 
+        ? 36.0 
+        : 40.0;
+    
+    final double logoFontSize = isDesktop 
+        ? 20.0 
+        : 22.0;
+    
+    final double usernameFontSize = isDesktop 
+        ? 14.0 
+        : 16.0;
+    
+    final double themeIconSize = isDesktop 
+        ? 20.0 
+        : 24.0;
     
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: horizontalPadding),
@@ -51,19 +77,19 @@ class HomeHeader extends StatelessWidget {
           // Logo o título en escritorio
           if (isDesktop)
             Padding(
-              padding: const EdgeInsets.only(right: 20.0),
+              padding: const EdgeInsets.only(right: 15.0),
               child: Row(
                 children: [
                   Image.asset(
                     'assets/images/logo.png',
-                    height: 40,
+                    height: logoHeight,
                     errorBuilder: (context, error, stackTrace) {
                       return Text(
                         "EcoShopping",
                         style: TextStyle(
                           color: Theme.of(context).colorScheme.primary,
                           fontWeight: FontWeight.bold,
-                          fontSize: 22,
+                          fontSize: logoFontSize,
                         ),
                       );
                     },
@@ -81,6 +107,7 @@ class HomeHeader extends StatelessWidget {
           
           // Botones de acción
           Row(
+            mainAxisSize: MainAxisSize.min, // Para que no ocupe más espacio del necesario
             children: [
               // Carrito
               IconBtnWithCounter(
@@ -89,64 +116,22 @@ class HomeHeader extends StatelessWidget {
               ),
               SizedBox(width: iconSpacing),
               
-              // Notificaciones
-              IconBtnWithCounter(
-                icon: Icons.notifications_none_outlined,
-                numOfItems: 3,
-                press: () {},
-              ),
-              SizedBox(width: iconSpacing),
-              
-              // Perfil
-              GestureDetector(
-                onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (context) => const ProfileScreen()),
-                  );
-                },
-                child: Row(
-                  children: [
-                    // Avatar
-                    CircleAvatar(
-                      radius: avatarSize,
-                      backgroundColor: Theme.of(context).colorScheme.primary,
-                      child: Text(
-                        user?.username.substring(0, 1).toUpperCase() ?? "U",
-                        style: TextStyle(
-                          fontSize: avatarFontSize,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    
-                    // Nombre de usuario en escritorio
-                    if (isDesktop)
-                      Padding(
-                        padding: const EdgeInsets.only(left: 10.0),
-                        child: Text(
-                          user?.username ?? "Usuario",
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: Theme.of(context).colorScheme.onSurface,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ),
-              
               // Botón de tema en escritorio
               if (isDesktop)
                 Padding(
-                  padding: const EdgeInsets.only(left: 20.0),
+                  padding: const EdgeInsets.only(left: 5.0),
                   child: IconButton(
                     icon: Icon(
                       Theme.of(context).brightness == Brightness.dark 
                           ? Icons.light_mode 
                           : Icons.dark_mode,
                       color: Theme.of(context).colorScheme.onSurface,
+                      size: themeIconSize,
+                    ),
+                    padding: EdgeInsets.all(8),
+                    constraints: BoxConstraints(
+                      minWidth: 36,
+                      minHeight: 36,
                     ),
                     onPressed: () {
                       // Aquí iría la lógica para cambiar el tema

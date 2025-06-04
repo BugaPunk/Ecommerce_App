@@ -371,8 +371,15 @@ class Body extends StatelessWidget {
   }
   
   Widget _buildCategoriesContainer(BuildContext context) {
+    // Determinar si estamos en escritorio o móvil
+    final isDesktop = ResponsiveLayout.isDesktop(context);
+    final isTablet = ResponsiveLayout.isTablet(context);
+    
     return Container(
-      height: 180,
+      // Eliminar altura fija para evitar desbordamiento
+      constraints: BoxConstraints(
+        minHeight: 180,
+      ),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceVariant,
         borderRadius: BorderRadius.circular(20),
@@ -385,6 +392,7 @@ class Body extends StatelessWidget {
         ],
       ),
       child: Column(
+        mainAxisSize: MainAxisSize.min, // Usar el mínimo espacio necesario
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Padding(
@@ -392,18 +400,17 @@ class Body extends StatelessWidget {
             child: Text(
               "Categorías",
               style: TextStyle(
-                fontSize: 20,
+                fontSize: isDesktop ? 18 : 20, // Reducir tamaño en escritorio
                 fontWeight: FontWeight.bold,
                 color: Theme.of(context).colorScheme.onSurfaceVariant,
               ),
             ),
           ),
           SizedBox(height: 10),
-          Expanded(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 10.0),
-              child: Categories(),
-            ),
+          // Usar un contenedor con padding en lugar de Expanded
+          Padding(
+            padding: const EdgeInsets.fromLTRB(10.0, 0, 10.0, 15.0),
+            child: Categories(),
           ),
         ],
       ),
