@@ -1,0 +1,193 @@
+import 'package:flutter/material.dart';
+
+import '../../../utils/size_config.dart';
+import 'section_title.dart';
+
+//Aqui se define los parametros para el carrusel
+class SpecialOffers extends StatelessWidget {
+  const SpecialOffers({
+    super.key,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        SectionTitle(
+          text: "Especial para ti",
+          press: (){},
+        ),
+        SizedBox(height: getProportionateScreenWidth(20)),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              //Aqui esta el carrusel con parametros
+              SpecialOfferCard(
+                image: "assets/images/banner_1.jpg",
+                category: "Smartphones",
+                numOfBrands: 18,
+                press: (){} ,
+              ),
+              SpecialOfferCard(
+                image: "assets/images/banner_2.jpg",
+                category: "Moda",
+                numOfBrands: 24,
+                press: (){} ,
+              ),
+              SizedBox(width: getProportionateScreenWidth(20)),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class SpecialOfferCard extends StatelessWidget {
+  const SpecialOfferCard({
+    super.key,
+    required this.category,
+    required this.image,
+    required this.numOfBrands,
+    required this.press,
+  });
+
+  final String category, image;
+  final int numOfBrands;
+  final GestureTapCallback press;
+
+  @override
+  Widget build(BuildContext context) {
+    // Obtener el tamaño de la pantalla para ajustes responsivos
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isDesktop = screenWidth > 1100;
+    final isTablet = screenWidth > 600 && screenWidth <= 1100;
+    final isMobile = screenWidth <= 600;
+    
+    // Ajustar dimensiones según el dispositivo
+    final double cardWidth = isDesktop 
+        ? 300 
+        : isTablet 
+            ? 260 
+            : getProportionateScreenWidth(242);
+    
+    final double cardHeight = isDesktop 
+        ? 120 
+        : isTablet 
+            ? 110 
+            : getProportionateScreenWidth(100);
+    
+    final double fontSize = isDesktop 
+        ? 20 
+        : isTablet 
+            ? 18 
+            : getProportionateScreenWidth(18);
+    
+    final double subFontSize = isDesktop 
+        ? 14 
+        : isTablet 
+            ? 13 
+            : getProportionateScreenWidth(12);
+    
+    final double horizontalPadding = isDesktop 
+        ? 20 
+        : isTablet 
+            ? 18 
+            : getProportionateScreenWidth(15);
+    
+    final double verticalPadding = isDesktop 
+        ? 15 
+        : isTablet 
+            ? 12 
+            : getProportionateScreenWidth(10);
+    
+    return Padding(
+      padding: EdgeInsets.only(left: getProportionateScreenWidth(20)),
+      child: GestureDetector(
+        onTap: press,
+        child: SizedBox(
+          width: cardWidth,
+          height: cardHeight,
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(20),
+            child: Stack(
+              children: [
+                Image.asset(
+                  image,
+                  fit: BoxFit.cover,
+                  width: double.infinity,
+                  height: double.infinity,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      color: Colors.grey[300],
+                      child: Center(
+                        child: Icon(
+                          Icons.image_not_supported_outlined,
+                          size: isDesktop ? 60 : 40,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    );
+                  },
+                ),
+                Container(
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        const Color(0xFF343434).withOpacity(0.4),
+                        const Color(0xFF343434).withOpacity(0.15),
+                      ],
+                    ),
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsets.symmetric(
+                    horizontal: horizontalPadding,
+                    vertical: verticalPadding,
+                  ),
+                  child: Text.rich(
+                    TextSpan(
+                      style: const TextStyle(color: Colors.white),
+                      children: [
+                        TextSpan(
+                          text: "$category\n",
+                          style: TextStyle(
+                            fontSize: fontSize,
+                            fontWeight: FontWeight.bold,
+                            shadows: [
+                              Shadow(
+                                offset: const Offset(1, 1),
+                                blurRadius: 2,
+                                color: Colors.black.withOpacity(0.5),
+                              ),
+                            ],
+                          ),
+                        ),
+                        TextSpan(
+                          text: "$numOfBrands productos",
+                          style: TextStyle(
+                            fontSize: subFontSize,
+                            shadows: [
+                              Shadow(
+                                offset: const Offset(1, 1),
+                                blurRadius: 2,
+                                color: Colors.black.withOpacity(0.5),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ]
+                    )
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}

@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
 import '../../../components/default_button.dart';
+import '../../../providers/auth_provider.dart';
 import '../../../utils/constants.dart';
 import '../../../utils/size_config.dart';
+import '../../home/home_screen.dart';
+import '../../home_screen.dart';
 import '../../login_screen.dart';
 import 'splash_content.dart';
 
@@ -188,11 +193,40 @@ class _BodyState extends State<Body> {
                       child: DefaultButton(
                         text: "Continuar",
                         press: (){
-                          // Redireccionar al login screen
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => const LoginScreen()),
-                          );
+                          // Obtener el estado de autenticación
+                          final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                          
+                          if (authProvider.status == AuthStatus.authenticated) {
+                            // Si el usuario está autenticado, verificar su rol
+                            if (authProvider.user != null) {
+                              // Si el usuario es admin o vendedor, mostrar la pantalla de administración
+                              if (authProvider.user!.roles.contains('ROLE_ADMIN') || 
+                                  authProvider.user!.roles.contains('ROLE_VENDOR')) {
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const HomeScreen()),
+                                );
+                              } else {
+                                // Si es un usuario normal, mostrar la pantalla de cliente
+                                Navigator.pushReplacement(
+                                  context,
+                                  MaterialPageRoute(builder: (context) => const ClientHomeScreen()),
+                                );
+                              }
+                            } else {
+                              // Si no hay información de usuario, ir a la pantalla de login
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => const LoginScreen()),
+                              );
+                            }
+                          } else {
+                            // Si no está autenticado, ir a la pantalla de login
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => const LoginScreen()),
+                            );
+                          }
                         },
                       ),
                     ),
@@ -382,11 +416,40 @@ class _BodyState extends State<Body> {
                   child: DefaultButton(
                     text: "Continuar",
                     press: (){
-                      // Redireccionar al login screen
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(builder: (context) => const LoginScreen()),
-                      );
+                      // Obtener el estado de autenticación
+                      final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                      
+                      if (authProvider.status == AuthStatus.authenticated) {
+                        // Si el usuario está autenticado, verificar su rol
+                        if (authProvider.user != null) {
+                          // Si el usuario es admin o vendedor, mostrar la pantalla de administración
+                          if (authProvider.user!.roles.contains('ROLE_ADMIN') || 
+                              authProvider.user!.roles.contains('ROLE_VENDOR')) {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => const HomeScreen()),
+                            );
+                          } else {
+                            // Si es un usuario normal, mostrar la pantalla de cliente
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => const ClientHomeScreen()),
+                            );
+                          }
+                        } else {
+                          // Si no hay información de usuario, ir a la pantalla de login
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => const LoginScreen()),
+                          );
+                        }
+                      } else {
+                        // Si no está autenticado, ir a la pantalla de login
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(builder: (context) => const LoginScreen()),
+                        );
+                      }
                     },
                   ),
                 ),

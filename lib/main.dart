@@ -7,6 +7,7 @@ import 'providers/auth_provider.dart';
 import 'providers/admin_provider.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
+import 'screens/home/home_screen.dart';
 import 'screens/splash/splash_screen.dart';
 
 void main() {
@@ -136,6 +137,17 @@ class MyApp extends StatelessWidget {
   Widget _buildHomeScreen(AuthProvider authProvider) {
     switch (authProvider.status) {
       case AuthStatus.authenticated:
+        // Si el usuario está autenticado, verificar su rol
+        if (authProvider.user != null) {
+          // Si el usuario es admin o vendedor, mostrar la pantalla de administración
+          if (authProvider.user!.roles.contains('ROLE_ADMIN') || 
+              authProvider.user!.roles.contains('ROLE_VENDOR')) {
+            return const HomeScreen();
+          } else {
+            // Si es un usuario normal, mostrar la pantalla de cliente
+            return const ClientHomeScreen();
+          }
+        }
         return const HomeScreen();
       case AuthStatus.unauthenticated:
         return const LoginScreen();

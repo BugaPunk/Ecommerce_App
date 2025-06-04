@@ -6,6 +6,7 @@ import '../providers/auth_provider.dart';
 import '../utils/responsive_layout.dart';
 import 'register_screen.dart';
 import 'home_screen.dart';
+import 'home/home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -38,9 +39,26 @@ class _LoginScreenState extends State<LoginScreen> {
       final success = await authProvider.login(loginRequest);
 
       if (success && mounted) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (context) => const HomeScreen()),
-        );
+        // Verificar el rol del usuario para redirigir a la pantalla correcta
+        if (authProvider.user != null) {
+          if (authProvider.user!.roles.contains('ROLE_ADMIN') || 
+              authProvider.user!.roles.contains('ROLE_VENDOR')) {
+            // Si es admin o vendedor, mostrar la pantalla de administración
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const HomeScreen()),
+            );
+          } else {
+            // Si es un usuario normal, mostrar la pantalla de cliente
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(builder: (context) => const ClientHomeScreen()),
+            );
+          }
+        } else {
+          // Si no hay información de usuario, mostrar la pantalla de administración por defecto
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const HomeScreen()),
+          );
+        }
       }
     }
   }
