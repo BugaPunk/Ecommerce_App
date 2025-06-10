@@ -1,80 +1,161 @@
 class Product {
   final int id;
-  final String title;
-  final String description;
+  final String nombre;
+  final String descripcion;
+  final double precio;
+  final int stock;
+  final String estado;
+  final String fechaRegistro;
+  final int categoriaId;
+
+  // UI-specific properties
   final List<String> images;
-  final double price;
   final double rating;
   final bool isFavourite;
   final bool isPopular;
-  final String category;
 
   Product({
     required this.id,
-    required this.title,
-    required this.description,
-    required this.images,
-    required this.price,
+    required this.nombre,
+    required this.descripcion,
+    required this.precio,
+    required this.stock,
+    required this.estado,
+    required this.fechaRegistro,
+    required this.categoriaId,
+    this.images = const [],
     this.rating = 0.0,
     this.isFavourite = false,
     this.isPopular = false,
-    required this.category,
   });
+
+  // Factory constructor to create a Product from API JSON
+  factory Product.fromJson(Map<String, dynamic> json) {
+    return Product(
+      id: json['id'],
+      nombre: json['nombre'],
+      descripcion: json['descripcion'],
+      precio: json['precio'].toDouble(),
+      stock: json['stock'],
+      estado: json['estado'],
+      fechaRegistro: json['fechaRegistro'],
+      categoriaId: json['categoriaId'],
+    );
+  }
+
+  // Convert Product to JSON for API requests
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'nombre': nombre,
+      'descripcion': descripcion,
+      'precio': precio,
+      'stock': stock,
+      'estado': estado,
+      'categoriaId': categoriaId,
+    };
+  }
+
+  // Create a copy of this Product with the given fields replaced with new values
+  Product copyWith({
+    int? id,
+    String? nombre,
+    String? descripcion,
+    double? precio,
+    int? stock,
+    String? estado,
+    String? fechaRegistro,
+    int? categoriaId,
+    List<String>? images,
+    double? rating,
+    bool? isFavourite,
+    bool? isPopular,
+  }) {
+    return Product(
+      id: id ?? this.id,
+      nombre: nombre ?? this.nombre,
+      descripcion: descripcion ?? this.descripcion,
+      precio: precio ?? this.precio,
+      stock: stock ?? this.stock,
+      estado: estado ?? this.estado,
+      fechaRegistro: fechaRegistro ?? this.fechaRegistro,
+      categoriaId: categoriaId ?? this.categoriaId,
+      images: images ?? this.images,
+      rating: rating ?? this.rating,
+      isFavourite: isFavourite ?? this.isFavourite,
+      isPopular: isPopular ?? this.isPopular,
+    );
+  }
 }
 
 // Lista de productos de demostración
 List<Product> demoProducts = [
   Product(
     id: 1,
-    title: "Samsung Galaxy S21",
-    description: "El Samsung Galaxy S21 es un teléfono inteligente Android de gama alta fabricado por Samsung Electronics.",
+    nombre: "Samsung Galaxy S21",
+    descripcion: "El Samsung Galaxy S21 es un teléfono inteligente Android de gama alta fabricado por Samsung Electronics.",
     images: ["assets/images/product_1.png"],
-    price: 799.99,
+    precio: 799.99,
+    stock: 100,
+    estado: "ACTIVO",
+    fechaRegistro: "2023-01-01T12:00:00",
+    categoriaId: 1,
     rating: 4.8,
     isFavourite: true,
     isPopular: true,
-    category: "Electrónicos",
   ),
   Product(
     id: 2,
-    title: "Nike Air Max 270",
-    description: "Las zapatillas Nike Air Max 270 ofrecen un estilo llamativo y una gran comodidad.",
+    nombre: "Nike Air Max 270",
+    descripcion: "Las zapatillas Nike Air Max 270 ofrecen un estilo llamativo y una gran comodidad.",
     images: ["assets/images/product_2.png"],
-    price: 129.99,
+    precio: 129.99,
+    stock: 50,
+    estado: "ACTIVO",
+    fechaRegistro: "2023-01-02T12:00:00",
+    categoriaId: 2,
     rating: 4.5,
     isPopular: true,
-    category: "Moda",
   ),
   Product(
     id: 3,
-    title: "Apple Watch Series 7",
-    description: "El Apple Watch Series 7 tiene la pantalla más grande y avanzada hasta ahora.",
+    nombre: "Apple Watch Series 7",
+    descripcion: "El Apple Watch Series 7 tiene la pantalla más grande y avanzada hasta ahora.",
     images: ["assets/images/product_3.png"],
-    price: 399.99,
+    precio: 399.99,
+    stock: 75,
+    estado: "ACTIVO",
+    fechaRegistro: "2023-01-03T12:00:00",
+    categoriaId: 1,
     rating: 4.7,
     isFavourite: true,
-    category: "Electrónicos",
   ),
   Product(
     id: 4,
-    title: "Logitech MX Master 3",
-    description: "El ratón inalámbrico avanzado con desplazamiento ultrarrápido.",
+    nombre: "Logitech MX Master 3",
+    descripcion: "El ratón inalámbrico avanzado con desplazamiento ultrarrápido.",
     images: ["assets/images/product_4.png"],
-    price: 99.99,
+    precio: 99.99,
+    stock: 120,
+    estado: "ACTIVO",
+    fechaRegistro: "2023-01-04T12:00:00",
+    categoriaId: 3,
     rating: 4.9,
     isPopular: true,
-    category: "Accesorios",
   ),
   Product(
     id: 5,
-    title: "Sony WH-1000XM4",
-    description: "Auriculares inalámbricos con cancelación de ruido líder en la industria.",
+    nombre: "Sony WH-1000XM4",
+    descripcion: "Auriculares inalámbricos con cancelación de ruido líder en la industria.",
     images: ["assets/images/product_5.png"],
-    price: 349.99,
+    precio: 349.99,
+    stock: 60,
+    estado: "ACTIVO",
+    fechaRegistro: "2023-01-05T12:00:00",
+    categoriaId: 1,
     rating: 4.8,
     isFavourite: true,
     isPopular: true,
-    category: "Electrónicos",
   ),
 ];
 
