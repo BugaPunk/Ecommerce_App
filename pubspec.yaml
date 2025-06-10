@@ -52,9 +52,12 @@ dependencies:
 
   # Google Fonts package for custom typography
   google_fonts: ^6.1.0
-  
+
   # SVG support
   flutter_svg: ^2.0.9
+
+  # Network connectivity check
+  connectivity_plus: ^5.0.2
 
 dev_dependencies:
   flutter_test:

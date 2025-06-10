@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -7,15 +8,23 @@ import '../models/user.dart';
 import '../models/auth_response.dart';
 import '../models/register_request.dart';
 import '../models/login_request.dart';
+import '../utils/network_utils.dart';
 import 'api_constants.dart';
 
 class AuthService {
   final http.Client _client = http.Client();
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+  final NetworkUtils _networkUtils = NetworkUtils();
 
   // Register a new user
   Future<bool> register(RegisterRequest request) async {
     try {
+      // Check for internet connectivity before making the API call
+      final hasInternet = await _networkUtils.hasInternetConnection();
+      if (!hasInternet) {
+        throw Exception('No hay conexión a internet. Por favor, verifica tu conexión y vuelve a intentarlo.');
+      }
+
       print('[DEBUG_LOG] Attempting registration for user: ${request.username}');
       print('[DEBUG_LOG] API URL: ${ApiConstants.baseUrl + ApiConstants.registerEndpoint}');
 
@@ -55,6 +64,11 @@ class AuthService {
         throw Exception('$errorMessage (Status code: ${response.statusCode})');
       }
     } catch (e) {
+      // Handle network-specific errors with user-friendly messages
+      if (e is SocketException) {
+        throw Exception(_networkUtils.getNetworkErrorMessage(e));
+      }
+
       // If it's already an Exception, rethrow it, otherwise wrap it
       if (e is Exception) {
         rethrow;
@@ -66,6 +80,12 @@ class AuthService {
   // Login user and get token
   Future<AuthResponse> login(LoginRequest request) async {
     try {
+      // Check for internet connectivity before making the API call
+      final hasInternet = await _networkUtils.hasInternetConnection();
+      if (!hasInternet) {
+        throw Exception('No hay conexión a internet. Por favor, verifica tu conexión y vuelve a intentarlo.');
+      }
+
       print('[DEBUG_LOG] Attempting login for user: ${request.username}');
       print('[DEBUG_LOG] API URL: ${ApiConstants.baseUrl + ApiConstants.loginEndpoint}');
 
@@ -128,6 +148,11 @@ class AuthService {
         throw Exception('$errorMessage (Status code: ${response.statusCode})');
       }
     } catch (e) {
+      // Handle network-specific errors with user-friendly messages
+      if (e is SocketException) {
+        throw Exception(_networkUtils.getNetworkErrorMessage(e));
+      }
+
       // If it's already an Exception, rethrow it, otherwise wrap it
       if (e is Exception) {
         rethrow;
@@ -142,6 +167,15 @@ class AuthService {
       final token = await _secureStorage.read(key: ApiConstants.tokenKey);
 
       if (token == null) {
+        return null;
+      }
+
+      // Check for internet connectivity before making the API call
+      final hasInternet = await _networkUtils.hasInternetConnection();
+      if (!hasInternet) {
+        // For session info, we don't throw an exception as this might be called on app startup
+        // Instead, we log the error and return null
+        print('No internet connection when checking session info');
         return null;
       }
 
@@ -178,8 +212,14 @@ class AuthService {
         return null;
       }
     } catch (e) {
+      // Handle network-specific errors
+      if (e is SocketException) {
+        print('Network error getting session info: ${_networkUtils.getNetworkErrorMessage(e)}');
+      } else {
+        print('Error getting session info: ${e.toString()}');
+      }
+
       // In case of error, clear token and return null
-      print('Error getting session info: ${e.toString()}');
       await logout();
       return null;
     }
@@ -191,14 +231,26 @@ class AuthService {
       final token = await _secureStorage.read(key: ApiConstants.tokenKey);
 
       if (token != null) {
-        // Call logout endpoint
-        await _client.post(
-          Uri.parse(ApiConstants.baseUrl + ApiConstants.logoutEndpoint),
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $token',
-          },
-        );
+        // Check for internet connectivity before making the API call
+        final hasInternet = await _networkUtils.hasInternetConnection();
+
+        if (hasInternet) {
+          // Only call logout endpoint if we have internet
+          try {
+            await _client.post(
+              Uri.parse(ApiConstants.baseUrl + ApiConstants.logoutEndpoint),
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer $token',
+              },
+            );
+          } catch (e) {
+            // Log the error but continue with local logout
+            print('Error calling logout endpoint: ${e.toString()}');
+          }
+        } else {
+          print('No internet connection when logging out, proceeding with local logout only');
+        }
       }
 
       // Clear token and user data regardless of API response
@@ -209,6 +261,13 @@ class AuthService {
 
       return true;
     } catch (e) {
+      // Handle network-specific errors
+      if (e is SocketException) {
+        print('Network error during logout: ${_networkUtils.getNetworkErrorMessage(e)}');
+      } else {
+        print('Error during logout: ${e.toString()}');
+      }
+
       // Even if API call fails, clear local data
       await _secureStorage.delete(key: ApiConstants.tokenKey);
 
