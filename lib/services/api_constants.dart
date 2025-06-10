@@ -3,7 +3,8 @@ class ApiConstants {
   // Use 10.0.2.2 for Android emulator to connect to host machine's localhost
   // Use your machine's actual IP address when testing on physical devices
   // static const String baseUrl = 'http://10.0.2.2:8080'; // For Android emulator
-  static const String baseUrl = 'http://localhost:8080'; // For web or desktop
+  // static const String baseUrl = 'http://localhost:8080'; // For web or desktop
+  static const String baseUrl = 'https://ecommerce-springboot-backend-xen4.onrender.com'; // Render deployment
   // static const String baseUrl = 'http://YOUR_MACHINE_IP:8080'; // For physical devices
 
   // Authentication endpoints
