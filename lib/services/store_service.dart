@@ -1,194 +1,118 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../models/store.dart';
-import 'api_constants.dart';
+import '../utils/api_config.dart';
+import '../utils/auth_utils.dart';
 
 class StoreService {
-  final http.Client _client = http.Client();
-  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+  final String baseUrl = ApiConfig.baseUrl;
 
   // Obtener todas las tiendas
-  Future<List<Store>> getAllStores() async {
+  Future<List<Store>> getStores() async {
     try {
-      print('[DEBUG_LOG] Getting all stores');
-      final url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.storesEndpoint}');
-      print('[DEBUG_LOG] API URL: $url');
-
-      final response = await _client.get(
-        url,
-        headers: {'Content-Type': 'application/json'},
-      );
-
-      print('[DEBUG_LOG] Get all stores response status code: ${response.statusCode}');
-      print('[DEBUG_LOG] Get all stores response body: ${response.body}');
+      final response = await http.get(Uri.parse('$baseUrl/api/tiendas'));
 
       if (response.statusCode == 200) {
-        final List<dynamic> storesJson = jsonDecode(response.body);
-        return storesJson.map((json) => Store.fromJson(json)).toList();
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((json) => Store.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to get all stores: ${response.statusCode}');
+        throw Exception('Error al obtener las tiendas: ${response.statusCode}');
       }
     } catch (e) {
-      print('[DEBUG_LOG] Error getting all stores: $e');
-      throw Exception('Error getting all stores: ${e.toString()}');
+      throw Exception('Error al obtener las tiendas: $e');
     }
   }
 
-  // Obtener tienda por ID
-  Future<Store> getStoreById(int storeId) async {
+  // Obtener una tienda por ID
+  Future<Store> getStoreById(int id) async {
     try {
-      print('[DEBUG_LOG] Getting store by ID');
-      final url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.storesEndpoint}/$storeId');
-      print('[DEBUG_LOG] API URL: $url');
-
-      final response = await _client.get(
-        url,
-        headers: {'Content-Type': 'application/json'},
-      );
-
-      print('[DEBUG_LOG] Get store by ID response status code: ${response.statusCode}');
-      print('[DEBUG_LOG] Get store by ID response body: ${response.body}');
+      final response = await http.get(Uri.parse('$baseUrl/api/tiendas/$id'));
 
       if (response.statusCode == 200) {
-        return Store.fromJson(jsonDecode(response.body));
-      } else if (response.statusCode == 404) {
-        throw Exception('Store not found with ID: $storeId');
+        return Store.fromJson(json.decode(response.body));
       } else {
-        throw Exception('Failed to get store by ID: ${response.statusCode}');
+        throw Exception('Error al obtener la tienda: ${response.statusCode}');
       }
     } catch (e) {
-      print('[DEBUG_LOG] Error getting store by ID: $e');
-      throw Exception('Error getting store by ID: ${e.toString()}');
+      throw Exception('Error al obtener la tienda: $e');
     }
   }
 
-  // Crear tienda
+  // Crear una nueva tienda
   Future<Store> createStore(Store store) async {
     try {
-      final token = await _secureStorage.read(key: ApiConstants.tokenKey);
-
+      final token = await AuthUtils.getToken();
       if (token == null) {
-        throw Exception('No authentication token found');
+        throw Exception('No hay token de autenticación');
       }
 
-      print('[DEBUG_LOG] Creating store');
-      final url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.storesEndpoint}');
-      print('[DEBUG_LOG] API URL: $url');
-
-      final requestBody = jsonEncode(store.toJson());
-      print('[DEBUG_LOG] Request body: $requestBody');
-
-      final response = await _client.post(
-        url,
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/tiendas'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
-        body: requestBody,
+        body: json.encode(store.toJson()),
       );
 
-      print('[DEBUG_LOG] Create store response status code: ${response.statusCode}');
-      print('[DEBUG_LOG] Create store response body: ${response.body}');
-
-      if (response.statusCode == 200) {
-        return Store.fromJson(jsonDecode(response.body));
-      } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
-      } else if (response.statusCode == 403) {
-        throw Exception('You do not have permission to create stores.');
+      if (response.statusCode == 201) {
+        return Store.fromJson(json.decode(response.body));
       } else {
-        throw Exception('Failed to create store: ${response.statusCode}');
+        throw Exception('Error al crear la tienda: ${response.statusCode}');
       }
     } catch (e) {
-      print('[DEBUG_LOG] Error creating store: $e');
-      throw Exception('Error creating store: ${e.toString()}');
+      throw Exception('Error al crear la tienda: $e');
     }
   }
 
-  // Actualizar tienda
-  Future<Store> updateStore(int storeId, Store store) async {
+  // Actualizar una tienda existente
+  Future<Store> updateStore(int id, Store store) async {
     try {
-      final token = await _secureStorage.read(key: ApiConstants.tokenKey);
-
+      final token = await AuthUtils.getToken();
       if (token == null) {
-        throw Exception('No authentication token found');
+        throw Exception('No hay token de autenticación');
       }
 
-      print('[DEBUG_LOG] Updating store');
-      final url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.storesEndpoint}/$storeId');
-      print('[DEBUG_LOG] API URL: $url');
-
-      final requestBody = jsonEncode(store.toJson());
-      print('[DEBUG_LOG] Request body: $requestBody');
-
-      final response = await _client.put(
-        url,
+      final response = await http.put(
+        Uri.parse('$baseUrl/api/tiendas/$id'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
-        body: requestBody,
+        body: json.encode(store.toJson()),
       );
 
-      print('[DEBUG_LOG] Update store response status code: ${response.statusCode}');
-      print('[DEBUG_LOG] Update store response body: ${response.body}');
-
       if (response.statusCode == 200) {
-        return Store.fromJson(jsonDecode(response.body));
-      } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
-      } else if (response.statusCode == 403) {
-        throw Exception('You do not have permission to update stores.');
-      } else if (response.statusCode == 404) {
-        throw Exception('Store not found with ID: $storeId');
+        return Store.fromJson(json.decode(response.body));
       } else {
-        throw Exception('Failed to update store: ${response.statusCode}');
+        throw Exception('Error al actualizar la tienda: ${response.statusCode}');
       }
     } catch (e) {
-      print('[DEBUG_LOG] Error updating store: $e');
-      throw Exception('Error updating store: ${e.toString()}');
+      throw Exception('Error al actualizar la tienda: $e');
     }
   }
 
-  // Eliminar tienda
-  Future<void> deleteStore(int storeId) async {
+  // Eliminar una tienda
+  Future<void> deleteStore(int id) async {
     try {
-      final token = await _secureStorage.read(key: ApiConstants.tokenKey);
-
+      final token = await AuthUtils.getToken();
       if (token == null) {
-        throw Exception('No authentication token found');
+        throw Exception('No hay token de autenticación');
       }
 
-      print('[DEBUG_LOG] Deleting store');
-      final url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.storesEndpoint}/$storeId');
-      print('[DEBUG_LOG] API URL: $url');
-
-      final response = await _client.delete(
-        url,
+      final response = await http.delete(
+        Uri.parse('$baseUrl/api/tiendas/$id'),
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
       );
 
-      print('[DEBUG_LOG] Delete store response status code: ${response.statusCode}');
-
-      if (response.statusCode == 204) {
-        return;
-      } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
-      } else if (response.statusCode == 403) {
-        throw Exception('You do not have permission to delete stores.');
-      } else if (response.statusCode == 404) {
-        throw Exception('Store not found with ID: $storeId');
-      } else {
-        throw Exception('Failed to delete store: ${response.statusCode}');
+      if (response.statusCode != 204) {
+        throw Exception('Error al eliminar la tienda: ${response.statusCode}');
       }
     } catch (e) {
-      print('[DEBUG_LOG] Error deleting store: $e');
-      throw Exception('Error deleting store: ${e.toString()}');
+      throw Exception('Error al eliminar la tienda: $e');
     }
   }
 }

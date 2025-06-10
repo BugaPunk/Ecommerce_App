@@ -1,178 +1,88 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../models/payment.dart';
-import 'api_constants.dart';
+import '../utils/api_config.dart';
+import '../utils/auth_utils.dart';
 
 class PaymentService {
-  final http.Client _client = http.Client();
-  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+  final String baseUrl = ApiConfig.baseUrl;
 
-  // Procesar pago
-  Future<Payment> processPayment({
-    required int orderId,
-    required String paymentMethod,
-    String? cardNumber,
-    String? expirationDate,
-    String? cvv,
-    String? paypalEmail,
-  }) async {
+  // Procesar un pago
+  Future<Payment> processPayment(Payment payment) async {
     try {
-      final token = await _secureStorage.read(key: ApiConstants.tokenKey);
-
+      final token = await AuthUtils.getToken();
       if (token == null) {
-        throw Exception('No authentication token found');
+        throw Exception('No hay token de autenticación');
       }
 
-      // Validar método de pago
-      final validMethods = ['TARJETA', 'PAYPAL', 'TRANSFERENCIA'];
-      if (!validMethods.contains(paymentMethod)) {
-        throw Exception('Invalid payment method. Must be one of: ${validMethods.join(', ')}');
-      }
-
-      // Validar datos según método de pago
-      if (paymentMethod == 'TARJETA' && (cardNumber == null || expirationDate == null || cvv == null)) {
-        throw Exception('Card number, expiration date, and CVV are required for card payments');
-      }
-
-      if (paymentMethod == 'PAYPAL' && paypalEmail == null) {
-        throw Exception('PayPal email is required for PayPal payments');
-      }
-
-      print('[DEBUG_LOG] Processing payment');
-      final url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.paymentsEndpoint}');
-      print('[DEBUG_LOG] API URL: $url');
-
-      // Construir el cuerpo de la solicitud según el método de pago
-      final Map<String, dynamic> requestMap = {
-        'pedidoId': orderId,
-        'metodoPago': paymentMethod,
-      };
-
-      if (paymentMethod == 'TARJETA') {
-        requestMap['numeroTarjeta'] = cardNumber;
-        requestMap['fechaExpiracion'] = expirationDate;
-        requestMap['cvv'] = cvv;
-      } else if (paymentMethod == 'PAYPAL') {
-        requestMap['emailPaypal'] = paypalEmail;
-      }
-
-      final requestBody = jsonEncode(requestMap);
-      print('[DEBUG_LOG] Request body: $requestBody');
-
-      final response = await _client.post(
-        url,
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/pagos'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
-        body: requestBody,
+        body: json.encode(payment.toJson()),
       );
 
-      print('[DEBUG_LOG] Process payment response status code: ${response.statusCode}');
-      print('[DEBUG_LOG] Process payment response body: ${response.body}');
-
-      if (response.statusCode == 200) {
-        return Payment.fromJson(jsonDecode(response.body));
-      } else if (response.statusCode == 400) {
-        final errorBody = jsonDecode(response.body);
-        throw Exception(errorBody['message'] ?? 'Invalid data provided');
-      } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
-      } else if (response.statusCode == 403) {
-        throw Exception('You do not have permission to process this payment.');
-      } else if (response.statusCode == 404) {
-        throw Exception('Order not found with ID: $orderId');
+      if (response.statusCode == 201) {
+        return Payment.fromJson(json.decode(response.body));
       } else {
-        throw Exception('Failed to process payment: ${response.statusCode}');
+        throw Exception('Error al procesar el pago: ${response.statusCode}');
       }
     } catch (e) {
-      print('[DEBUG_LOG] Error processing payment: $e');
-      throw Exception('Error processing payment: ${e.toString()}');
+      throw Exception('Error al procesar el pago: $e');
     }
   }
 
-  // Obtener pago por ID
-  Future<Payment> getPaymentById(int paymentId) async {
+  // Obtener un pago por ID
+  Future<Payment> getPaymentById(int id) async {
     try {
-      final token = await _secureStorage.read(key: ApiConstants.tokenKey);
-
+      final token = await AuthUtils.getToken();
       if (token == null) {
-        throw Exception('No authentication token found');
+        throw Exception('No hay token de autenticación');
       }
 
-      print('[DEBUG_LOG] Getting payment by ID');
-      final url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.paymentsEndpoint}/$paymentId');
-      print('[DEBUG_LOG] API URL: $url');
-
-      final response = await _client.get(
-        url,
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/pagos/$id'),
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
       );
 
-      print('[DEBUG_LOG] Get payment by ID response status code: ${response.statusCode}');
-      print('[DEBUG_LOG] Get payment by ID response body: ${response.body}');
-
       if (response.statusCode == 200) {
-        return Payment.fromJson(jsonDecode(response.body));
-      } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
-      } else if (response.statusCode == 403) {
-        throw Exception('You do not have permission to access this payment.');
-      } else if (response.statusCode == 404) {
-        throw Exception('Payment not found with ID: $paymentId');
+        return Payment.fromJson(json.decode(response.body));
       } else {
-        throw Exception('Failed to get payment by ID: ${response.statusCode}');
+        throw Exception('Error al obtener el pago: ${response.statusCode}');
       }
     } catch (e) {
-      print('[DEBUG_LOG] Error getting payment by ID: $e');
-      throw Exception('Error getting payment by ID: ${e.toString()}');
+      throw Exception('Error al obtener el pago: $e');
     }
   }
 
-  // Listar pagos por usuario
-  Future<List<Payment>> getPaymentsByUser(int userId) async {
+  // Obtener pagos por usuario
+  Future<List<Payment>> getUserPayments(int userId) async {
     try {
-      final token = await _secureStorage.read(key: ApiConstants.tokenKey);
-
+      final token = await AuthUtils.getToken();
       if (token == null) {
-        throw Exception('No authentication token found');
+        throw Exception('No hay token de autenticación');
       }
 
-      print('[DEBUG_LOG] Getting payments by user');
-      final url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.paymentsEndpoint}/usuario/$userId');
-      print('[DEBUG_LOG] API URL: $url');
-
-      final response = await _client.get(
-        url,
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/pagos/usuario/$userId'),
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
       );
 
-      print('[DEBUG_LOG] Get payments by user response status code: ${response.statusCode}');
-      print('[DEBUG_LOG] Get payments by user response body: ${response.body}');
-
       if (response.statusCode == 200) {
-        final List<dynamic> paymentsJson = jsonDecode(response.body);
-        return paymentsJson.map((json) => Payment.fromJson(json)).toList();
-      } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
-      } else if (response.statusCode == 403) {
-        throw Exception('You do not have permission to access these payments.');
-      } else if (response.statusCode == 404) {
-        throw Exception('User not found with ID: $userId');
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((json) => Payment.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to get payments by user: ${response.statusCode}');
+        throw Exception('Error al obtener los pagos: ${response.statusCode}');
       }
     } catch (e) {
-      print('[DEBUG_LOG] Error getting payments by user: $e');
-      throw Exception('Error getting payments by user: ${e.toString()}');
+      throw Exception('Error al obtener los pagos: $e');
     }
   }
 }

@@ -9,6 +9,7 @@ import '../models/change_password_request.dart';
 import '../models/user_profile_response.dart';
 import '../services/auth_service.dart';
 import '../services/profile_service.dart';
+import '../utils/app_routes.dart';
 
 enum AuthStatus {
   uninitialized,
@@ -110,6 +111,7 @@ class AuthProvider with ChangeNotifier {
         firstName: '',
         lastName: '',
         roles: response.roles,
+        active: true,
       );
 
       _token = response.token;
@@ -221,4 +223,37 @@ class AuthProvider with ChangeNotifier {
     _loading = loading;
     notifyListeners();
   }
+
+  // Método para obtener la ruta inicial según el rol del usuario
+  String getInitialRoute() {
+    if (!isAuthenticated) {
+      return AppRoutes.login;
+    }
+
+    if (_user == null) {
+      return AppRoutes.login;
+    }
+
+    if (_user!.roles.contains('ROLE_ADMIN')) {
+      return AppRoutes.home;
+    } else if (_user!.roles.contains('ROLE_VENDOR')) {
+      return AppRoutes.vendorHome;
+    } else {
+      return AppRoutes.home;
+    }
+  }
+
+  // Método para verificar si el usuario tiene un rol específico
+  bool hasRole(String role) {
+    return _user?.roles.contains(role) ?? false;
+  }
+
+  // Método para verificar si el usuario es administrador
+  bool get isAdmin => hasRole('ROLE_ADMIN');
+
+  // Método para verificar si el usuario es vendedor
+  bool get isVendor => hasRole('ROLE_VENDOR');
+
+  // Método para verificar si el usuario es cliente
+  bool get isClient => !isAdmin && !isVendor;
 }

@@ -24,44 +24,44 @@ class ProductCard extends StatelessWidget {
     final isDesktop = screenWidth > 1100;
     final isTablet = screenWidth > 600 && screenWidth <= 1100;
     final isMobile = screenWidth <= 600;
-    
+
     // Ajustar dimensiones según el dispositivo
     final double cardWidth = isDesktop 
         ? 220 
         : isTablet 
             ? 180 
             : getProportionateScreenWidth(width);
-    
+
     final double cardAspectRatio = isDesktop 
         ? 1.0 
         : aspectRatio;
-    
+
     final double fontSize = isDesktop 
         ? 15 
         : isTablet 
             ? 14 
             : getProportionateScreenWidth(14);
-    
+
     final double priceFontSize = isDesktop 
         ? 20 
         : isTablet 
             ? 18 
             : getProportionateScreenWidth(18);
-    
+
     final double iconSize = isDesktop 
         ? 16 
         : getProportionateScreenWidth(14);
-    
+
     final double containerSize = isDesktop 
         ? 32 
         : getProportionateScreenWidth(28);
-    
+
     final double padding = isDesktop 
         ? 24 
         : isTablet 
             ? 20 
             : getProportionateScreenWidth(20);
-    
+
     // Colores adaptados al tema
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
     final cardColor = isDarkMode 
@@ -73,7 +73,7 @@ class ProductCard extends StatelessWidget {
     final priceColor = isDarkMode 
         ? Theme.of(context).colorScheme.primary 
         : FPrimaryColor;
-    
+
     return Padding(
       padding: EdgeInsets.only(left: getProportionateScreenWidth(20)),
       child: GestureDetector(
@@ -115,7 +115,7 @@ class ProductCard extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Text(
-                product.title,
+                product.nombre,
                 style: TextStyle(
                   color: textColor,
                   fontSize: fontSize,
@@ -129,7 +129,7 @@ class ProductCard extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
-                    "\$${product.price.toStringAsFixed(2)}",
+                    "\$${product.precio.toStringAsFixed(2)}",
                     style: TextStyle(
                       fontSize: priceFontSize,
                       fontWeight: FontWeight.w600,

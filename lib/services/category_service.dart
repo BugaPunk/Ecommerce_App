@@ -4,10 +4,13 @@ import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../models/category.dart';
 import 'api_constants.dart';
+import '../utils/api_config.dart';
+import '../utils/auth_utils.dart';
 
 class CategoryService {
   final http.Client _client = http.Client();
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+  final String baseUrl = ApiConfig.baseUrl;
 
   // Obtener todas las categorías
   Future<List<Category>> getAllCategories() async {
@@ -218,6 +221,23 @@ class CategoryService {
     } catch (e) {
       print('[DEBUG_LOG] Error deleting category: $e');
       throw Exception('Error deleting category: ${e.toString()}');
+    }
+  }
+
+  Future<List<Category>> getCategories() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/categorias'),
+      );
+
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((json) => Category.fromJson(json)).toList();
+      } else {
+        throw Exception('Error al obtener las categorías: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error al obtener las categorías: $e');
     }
   }
 }

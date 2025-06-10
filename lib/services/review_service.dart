@@ -3,393 +3,206 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../models/review.dart';
+import '../utils/api_config.dart';
+import '../utils/auth_utils.dart';
 import 'api_constants.dart';
 
 class ReviewService {
   final http.Client _client = http.Client();
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+  final String baseUrl = ApiConfig.baseUrl;
 
   // ==================== PRODUCT REVIEWS ====================
 
   // Crear reseña de producto
-  Future<ProductReview> createProductReview({
-    required int productId,
-    required int rating,
-    required String comment,
-  }) async {
+  Future<Review> createProductReview(int productId, Review review) async {
     try {
-      final token = await _secureStorage.read(key: ApiConstants.tokenKey);
-
+      final token = await AuthUtils.getToken();
       if (token == null) {
-        throw Exception('No authentication token found');
+        throw Exception('No hay token de autenticación');
       }
 
-      // Validar calificación
-      if (rating < 1 || rating > 5) {
-        throw Exception('Rating must be between 1 and 5');
-      }
-
-      print('[DEBUG_LOG] Creating product review');
-      final url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.productReviewsEndpoint}');
-      print('[DEBUG_LOG] API URL: $url');
-
-      final requestBody = jsonEncode({
-        'productoId': productId,
-        'calificacion': rating,
-        'comentario': comment,
-      });
-      print('[DEBUG_LOG] Request body: $requestBody');
-
-      final response = await _client.post(
-        url,
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/productos/$productId/resenias'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
-        body: requestBody,
+        body: json.encode(review.toJson()),
       );
 
-      print('[DEBUG_LOG] Create product review response status code: ${response.statusCode}');
-      print('[DEBUG_LOG] Create product review response body: ${response.body}');
-
-      if (response.statusCode == 200) {
-        return ProductReview.fromJson(jsonDecode(response.body));
-      } else if (response.statusCode == 400) {
-        final errorBody = jsonDecode(response.body);
-        throw Exception(errorBody['message'] ?? 'Invalid data provided');
-      } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
-      } else if (response.statusCode == 403) {
-        throw Exception('You do not have permission to create this review.');
-      } else if (response.statusCode == 404) {
-        throw Exception('Product not found with ID: $productId');
+      if (response.statusCode == 201) {
+        return Review.fromJson(json.decode(response.body));
       } else {
-        throw Exception('Failed to create product review: ${response.statusCode}');
+        throw Exception('Error al crear la reseña: ${response.statusCode}');
       }
     } catch (e) {
-      print('[DEBUG_LOG] Error creating product review: $e');
-      throw Exception('Error creating product review: ${e.toString()}');
+      throw Exception('Error al crear la reseña: $e');
     }
   }
 
-  // Obtener reseñas por producto
-  Future<List<ProductReview>> getReviewsByProduct(int productId) async {
+  // Obtener reseñas de producto
+  Future<List<Review>> getProductReviews(int productId) async {
     try {
-      print('[DEBUG_LOG] Getting reviews by product');
-      final url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.productReviewsEndpoint}/producto/$productId');
-      print('[DEBUG_LOG] API URL: $url');
-
-      final response = await _client.get(
-        url,
-        headers: {'Content-Type': 'application/json'},
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/productos/$productId/resenias'),
       );
 
-      print('[DEBUG_LOG] Get reviews by product response status code: ${response.statusCode}');
-      print('[DEBUG_LOG] Get reviews by product response body: ${response.body}');
-
       if (response.statusCode == 200) {
-        final List<dynamic> reviewsJson = jsonDecode(response.body);
-        return reviewsJson.map((json) => ProductReview.fromJson(json)).toList();
-      } else if (response.statusCode == 404) {
-        throw Exception('Product not found with ID: $productId');
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((json) => Review.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to get reviews by product: ${response.statusCode}');
+        throw Exception('Error al obtener las reseñas: ${response.statusCode}');
       }
     } catch (e) {
-      print('[DEBUG_LOG] Error getting reviews by product: $e');
-      throw Exception('Error getting reviews by product: ${e.toString()}');
+      throw Exception('Error al obtener las reseñas: $e');
     }
   }
 
   // Actualizar reseña de producto
-  Future<ProductReview> updateProductReview({
-    required int reviewId,
-    required int rating,
-    required String comment,
-  }) async {
+  Future<Review> updateProductReview(int productId, int reviewId, Review review) async {
     try {
-      final token = await _secureStorage.read(key: ApiConstants.tokenKey);
-
+      final token = await AuthUtils.getToken();
       if (token == null) {
-        throw Exception('No authentication token found');
+        throw Exception('No hay token de autenticación');
       }
 
-      // Validar calificación
-      if (rating < 1 || rating > 5) {
-        throw Exception('Rating must be between 1 and 5');
-      }
-
-      print('[DEBUG_LOG] Updating product review');
-      final url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.productReviewsEndpoint}/$reviewId');
-      print('[DEBUG_LOG] API URL: $url');
-
-      final requestBody = jsonEncode({
-        'calificacion': rating,
-        'comentario': comment,
-      });
-      print('[DEBUG_LOG] Request body: $requestBody');
-
-      final response = await _client.put(
-        url,
+      final response = await http.put(
+        Uri.parse('$baseUrl/api/productos/$productId/resenias/$reviewId'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
-        body: requestBody,
+        body: json.encode(review.toJson()),
       );
 
-      print('[DEBUG_LOG] Update product review response status code: ${response.statusCode}');
-      print('[DEBUG_LOG] Update product review response body: ${response.body}');
-
       if (response.statusCode == 200) {
-        return ProductReview.fromJson(jsonDecode(response.body));
-      } else if (response.statusCode == 400) {
-        final errorBody = jsonDecode(response.body);
-        throw Exception(errorBody['message'] ?? 'Invalid data provided');
-      } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
-      } else if (response.statusCode == 403) {
-        throw Exception('You do not have permission to update this review.');
-      } else if (response.statusCode == 404) {
-        throw Exception('Review not found with ID: $reviewId');
+        return Review.fromJson(json.decode(response.body));
       } else {
-        throw Exception('Failed to update product review: ${response.statusCode}');
+        throw Exception('Error al actualizar la reseña: ${response.statusCode}');
       }
     } catch (e) {
-      print('[DEBUG_LOG] Error updating product review: $e');
-      throw Exception('Error updating product review: ${e.toString()}');
+      throw Exception('Error al actualizar la reseña: $e');
     }
   }
 
   // Eliminar reseña de producto
-  Future<void> deleteProductReview(int reviewId) async {
+  Future<void> deleteProductReview(int productId, int reviewId) async {
     try {
-      final token = await _secureStorage.read(key: ApiConstants.tokenKey);
-
+      final token = await AuthUtils.getToken();
       if (token == null) {
-        throw Exception('No authentication token found');
+        throw Exception('No hay token de autenticación');
       }
 
-      print('[DEBUG_LOG] Deleting product review');
-      final url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.productReviewsEndpoint}/$reviewId');
-      print('[DEBUG_LOG] API URL: $url');
-
-      final response = await _client.delete(
-        url,
+      final response = await http.delete(
+        Uri.parse('$baseUrl/api/productos/$productId/resenias/$reviewId'),
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
       );
 
-      print('[DEBUG_LOG] Delete product review response status code: ${response.statusCode}');
-
-      if (response.statusCode == 204) {
-        return;
-      } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
-      } else if (response.statusCode == 403) {
-        throw Exception('You do not have permission to delete this review.');
-      } else if (response.statusCode == 404) {
-        throw Exception('Review not found with ID: $reviewId');
-      } else {
-        throw Exception('Failed to delete product review: ${response.statusCode}');
+      if (response.statusCode != 204) {
+        throw Exception('Error al eliminar la reseña: ${response.statusCode}');
       }
     } catch (e) {
-      print('[DEBUG_LOG] Error deleting product review: $e');
-      throw Exception('Error deleting product review: ${e.toString()}');
+      throw Exception('Error al eliminar la reseña: $e');
     }
   }
 
   // ==================== STORE REVIEWS ====================
 
-  // Obtener reseñas por tienda
-  Future<List<StoreReview>> getReviewsByStore(int storeId) async {
+  // Obtener reseñas de tienda
+  Future<List<Review>> getStoreReviews(int storeId) async {
     try {
-      print('[DEBUG_LOG] Getting reviews by store');
-      final url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.storeReviewsEndpoint}/$storeId/resenias');
-      print('[DEBUG_LOG] API URL: $url');
-
-      final response = await _client.get(
-        url,
-        headers: {'Content-Type': 'application/json'},
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/tiendas/$storeId/resenias'),
       );
 
-      print('[DEBUG_LOG] Get reviews by store response status code: ${response.statusCode}');
-      print('[DEBUG_LOG] Get reviews by store response body: ${response.body}');
-
       if (response.statusCode == 200) {
-        final List<dynamic> reviewsJson = jsonDecode(response.body);
-        return reviewsJson.map((json) => StoreReview.fromJson(json)).toList();
-      } else if (response.statusCode == 404) {
-        throw Exception('Store not found with ID: $storeId');
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((json) => Review.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to get reviews by store: ${response.statusCode}');
+        throw Exception('Error al obtener las reseñas: ${response.statusCode}');
       }
     } catch (e) {
-      print('[DEBUG_LOG] Error getting reviews by store: $e');
-      throw Exception('Error getting reviews by store: ${e.toString()}');
+      throw Exception('Error al obtener las reseñas: $e');
     }
   }
 
   // Crear reseña de tienda
-  Future<StoreReview> createStoreReview({
-    required int storeId,
-    required int rating,
-    required String comment,
-  }) async {
+  Future<Review> createStoreReview(int storeId, Review review) async {
     try {
-      final token = await _secureStorage.read(key: ApiConstants.tokenKey);
-
+      final token = await AuthUtils.getToken();
       if (token == null) {
-        throw Exception('No authentication token found');
+        throw Exception('No hay token de autenticación');
       }
 
-      // Validar calificación
-      if (rating < 1 || rating > 5) {
-        throw Exception('Rating must be between 1 and 5');
-      }
-
-      print('[DEBUG_LOG] Creating store review');
-      final url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.storeReviewsEndpoint}/$storeId/resenias');
-      print('[DEBUG_LOG] API URL: $url');
-
-      final requestBody = jsonEncode({
-        'calificacion': rating,
-        'comentario': comment,
-      });
-      print('[DEBUG_LOG] Request body: $requestBody');
-
-      final response = await _client.post(
-        url,
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/tiendas/$storeId/resenias'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
-        body: requestBody,
+        body: json.encode(review.toJson()),
       );
 
-      print('[DEBUG_LOG] Create store review response status code: ${response.statusCode}');
-      print('[DEBUG_LOG] Create store review response body: ${response.body}');
-
-      if (response.statusCode == 200) {
-        return StoreReview.fromJson(jsonDecode(response.body));
-      } else if (response.statusCode == 400) {
-        final errorBody = jsonDecode(response.body);
-        throw Exception(errorBody['message'] ?? 'Invalid data provided');
-      } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
-      } else if (response.statusCode == 403) {
-        throw Exception('You do not have permission to create this review.');
-      } else if (response.statusCode == 404) {
-        throw Exception('Store not found with ID: $storeId');
+      if (response.statusCode == 201) {
+        return Review.fromJson(json.decode(response.body));
       } else {
-        throw Exception('Failed to create store review: ${response.statusCode}');
+        throw Exception('Error al crear la reseña: ${response.statusCode}');
       }
     } catch (e) {
-      print('[DEBUG_LOG] Error creating store review: $e');
-      throw Exception('Error creating store review: ${e.toString()}');
+      throw Exception('Error al crear la reseña: $e');
     }
   }
 
   // Actualizar reseña de tienda
-  Future<StoreReview> updateStoreReview({
-    required int storeId,
-    required int reviewId,
-    required int rating,
-    required String comment,
-  }) async {
+  Future<Review> updateStoreReview(int storeId, int reviewId, Review review) async {
     try {
-      final token = await _secureStorage.read(key: ApiConstants.tokenKey);
-
+      final token = await AuthUtils.getToken();
       if (token == null) {
-        throw Exception('No authentication token found');
+        throw Exception('No hay token de autenticación');
       }
 
-      // Validar calificación
-      if (rating < 1 || rating > 5) {
-        throw Exception('Rating must be between 1 and 5');
-      }
-
-      print('[DEBUG_LOG] Updating store review');
-      final url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.storeReviewsEndpoint}/$storeId/resenias/$reviewId');
-      print('[DEBUG_LOG] API URL: $url');
-
-      final requestBody = jsonEncode({
-        'calificacion': rating,
-        'comentario': comment,
-      });
-      print('[DEBUG_LOG] Request body: $requestBody');
-
-      final response = await _client.put(
-        url,
+      final response = await http.put(
+        Uri.parse('$baseUrl/api/tiendas/$storeId/resenias/$reviewId'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
-        body: requestBody,
+        body: json.encode(review.toJson()),
       );
 
-      print('[DEBUG_LOG] Update store review response status code: ${response.statusCode}');
-      print('[DEBUG_LOG] Update store review response body: ${response.body}');
-
       if (response.statusCode == 200) {
-        return StoreReview.fromJson(jsonDecode(response.body));
-      } else if (response.statusCode == 400) {
-        final errorBody = jsonDecode(response.body);
-        throw Exception(errorBody['message'] ?? 'Invalid data provided');
-      } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
-      } else if (response.statusCode == 403) {
-        throw Exception('You do not have permission to update this review.');
-      } else if (response.statusCode == 404) {
-        throw Exception('Review not found with ID: $reviewId for store with ID: $storeId');
+        return Review.fromJson(json.decode(response.body));
       } else {
-        throw Exception('Failed to update store review: ${response.statusCode}');
+        throw Exception('Error al actualizar la reseña: ${response.statusCode}');
       }
     } catch (e) {
-      print('[DEBUG_LOG] Error updating store review: $e');
-      throw Exception('Error updating store review: ${e.toString()}');
+      throw Exception('Error al actualizar la reseña: $e');
     }
   }
 
   // Eliminar reseña de tienda
   Future<void> deleteStoreReview(int storeId, int reviewId) async {
     try {
-      final token = await _secureStorage.read(key: ApiConstants.tokenKey);
-
+      final token = await AuthUtils.getToken();
       if (token == null) {
-        throw Exception('No authentication token found');
+        throw Exception('No hay token de autenticación');
       }
 
-      print('[DEBUG_LOG] Deleting store review');
-      final url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.storeReviewsEndpoint}/$storeId/resenias/$reviewId');
-      print('[DEBUG_LOG] API URL: $url');
-
-      final response = await _client.delete(
-        url,
+      final response = await http.delete(
+        Uri.parse('$baseUrl/api/tiendas/$storeId/resenias/$reviewId'),
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
       );
 
-      print('[DEBUG_LOG] Delete store review response status code: ${response.statusCode}');
-
-      if (response.statusCode == 204) {
-        return;
-      } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
-      } else if (response.statusCode == 403) {
-        throw Exception('You do not have permission to delete this review.');
-      } else if (response.statusCode == 404) {
-        throw Exception('Review not found with ID: $reviewId for store with ID: $storeId');
-      } else {
-        throw Exception('Failed to delete store review: ${response.statusCode}');
+      if (response.statusCode != 204) {
+        throw Exception('Error al eliminar la reseña: ${response.statusCode}');
       }
     } catch (e) {
-      print('[DEBUG_LOG] Error deleting store review: $e');
-      throw Exception('Error deleting store review: ${e.toString()}');
+      throw Exception('Error al eliminar la reseña: $e');
     }
   }
 }

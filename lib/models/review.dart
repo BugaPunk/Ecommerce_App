@@ -1,21 +1,49 @@
-abstract class Review {
+class Review {
   final int id;
+  final int? productoId;
+  final int? tiendaId;
   final int usuarioId;
+  final String? nombreUsuario;
   final int calificacion;
   final String comentario;
   final String fechaCreacion;
-  final String? nombreUsuario;
 
   Review({
     required this.id,
+    this.productoId,
+    this.tiendaId,
     required this.usuarioId,
+    this.nombreUsuario,
     required this.calificacion,
     required this.comentario,
     required this.fechaCreacion,
-    this.nombreUsuario,
   });
 
-  Map<String, dynamic> toJson();
+  factory Review.fromJson(Map<String, dynamic> json) {
+    return Review(
+      id: json['id'],
+      productoId: json['productoId'],
+      tiendaId: json['tiendaId'],
+      usuarioId: json['usuarioId'],
+      nombreUsuario: json['nombreUsuario'],
+      calificacion: json['calificacion'],
+      comentario: json['comentario'],
+      fechaCreacion: json['fechaCreacion'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'productoId': productoId,
+      'tiendaId': tiendaId,
+      'usuarioId': usuarioId,
+      'nombreUsuario': nombreUsuario,
+      'calificacion': calificacion,
+      'comentario': comentario,
+      'fechaCreacion': fechaCreacion,
+    };
+  }
 }
 
 class ProductReview extends Review {

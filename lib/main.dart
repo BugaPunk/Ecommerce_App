@@ -6,9 +6,9 @@ import 'package:google_fonts/google_fonts.dart';
 import 'providers/auth_provider.dart';
 import 'providers/admin_provider.dart';
 import 'screens/login_screen.dart';
-import 'screens/home_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/splash/splash_screen.dart';
+import 'routes.dart';
 
 void main() {
   runApp(
@@ -51,7 +51,7 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
             colorScheme: lightColorScheme,
-            useMaterial3: true, // Enable Material 3
+            useMaterial3: true,
             textTheme: GoogleFonts.openSansTextTheme(
               Theme.of(context).textTheme,
             ),
@@ -89,7 +89,6 @@ class MyApp extends StatelessWidget {
             useMaterial3: true,
             textTheme: GoogleFonts.openSansTextTheme(
               Theme.of(context).textTheme.copyWith(
-                // Ensure text is readable in dark mode
                 bodyLarge: Theme.of(context).textTheme.bodyLarge?.copyWith(color: Colors.white),
                 bodyMedium: Theme.of(context).textTheme.bodyMedium?.copyWith(color: Colors.white),
               ),
@@ -123,41 +122,12 @@ class MyApp extends StatelessWidget {
               ),
             ),
           ),
-          themeMode: ThemeMode.system, // Follow system theme
-          // Show splash screen first, then handle authentication
+          themeMode: ThemeMode.system,
           home: const SplashScreen(),
-          routes: {
-            SplashScreen.routeName: (context) => const SplashScreen(),
-          },
+          routes: AppRoutes.getRoutes(),
+          onGenerateRoute: AppRoutes.generateRoute,
         );
       },
     );
-  }
-
-  Widget _buildHomeScreen(AuthProvider authProvider) {
-    switch (authProvider.status) {
-      case AuthStatus.authenticated:
-        // Si el usuario está autenticado, verificar su rol
-        if (authProvider.user != null) {
-          // Si el usuario es admin o vendedor, mostrar la pantalla de administración
-          if (authProvider.user!.roles.contains('ROLE_ADMIN') || 
-              authProvider.user!.roles.contains('ROLE_VENDOR')) {
-            return const HomeScreen();
-          } else {
-            // Si es un usuario normal, mostrar la pantalla de cliente
-            return const ClientHomeScreen();
-          }
-        }
-        return const HomeScreen();
-      case AuthStatus.unauthenticated:
-        return const LoginScreen();
-      case AuthStatus.uninitialized:
-      default:
-        return const Scaffold(
-          body: Center(
-            child: CircularProgressIndicator(),
-          ),
-        );
-    }
   }
 }

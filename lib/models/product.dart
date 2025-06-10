@@ -7,6 +7,7 @@ class Product {
   final String estado;
   final String fechaRegistro;
   final int categoriaId;
+  final List<String> imagenes;
 
   // UI-specific properties
   final List<String> images;
@@ -23,11 +24,29 @@ class Product {
     required this.estado,
     required this.fechaRegistro,
     required this.categoriaId,
+    this.imagenes = const [],
     this.images = const [],
     this.rating = 0.0,
     this.isFavourite = false,
     this.isPopular = false,
-  });
+  }) {
+    // Validaciones
+    if (nombre.isEmpty) {
+      throw ArgumentError('El nombre del producto no puede estar vacío');
+    }
+    if (descripcion.isEmpty) {
+      throw ArgumentError('La descripción del producto no puede estar vacía');
+    }
+    if (precio < 0) {
+      throw ArgumentError('El precio no puede ser negativo');
+    }
+    if (stock < 0) {
+      throw ArgumentError('El stock no puede ser negativo');
+    }
+    if (!['ACTIVO', 'INACTIVO', 'AGOTADO'].contains(estado)) {
+      throw ArgumentError('Estado de producto inválido');
+    }
+  }
 
   // Factory constructor to create a Product from API JSON
   factory Product.fromJson(Map<String, dynamic> json) {
@@ -40,6 +59,7 @@ class Product {
       estado: json['estado'],
       fechaRegistro: json['fechaRegistro'],
       categoriaId: json['categoriaId'],
+      imagenes: List<String>.from(json['imagenes'] ?? []),
     );
   }
 
@@ -52,7 +72,9 @@ class Product {
       'precio': precio,
       'stock': stock,
       'estado': estado,
+      'fechaRegistro': fechaRegistro,
       'categoriaId': categoriaId,
+      'imagenes': imagenes,
     };
   }
 
@@ -66,6 +88,7 @@ class Product {
     String? estado,
     String? fechaRegistro,
     int? categoriaId,
+    List<String>? imagenes,
     List<String>? images,
     double? rating,
     bool? isFavourite,
@@ -80,11 +103,68 @@ class Product {
       estado: estado ?? this.estado,
       fechaRegistro: fechaRegistro ?? this.fechaRegistro,
       categoriaId: categoriaId ?? this.categoriaId,
+      imagenes: imagenes ?? this.imagenes,
       images: images ?? this.images,
       rating: rating ?? this.rating,
       isFavourite: isFavourite ?? this.isFavourite,
       isPopular: isPopular ?? this.isPopular,
     );
+  }
+
+  // Método para verificar si el producto está disponible
+  bool get isAvailable => estado == 'ACTIVO' && stock > 0;
+
+  // Método para obtener el precio formateado
+  String get formattedPrice => '\$${precio.toStringAsFixed(2)}';
+
+  // Método para obtener el estado en español
+  String get estadoEnEspanol {
+    switch (estado) {
+      case 'ACTIVO':
+        return 'Disponible';
+      case 'INACTIVO':
+        return 'No disponible';
+      case 'AGOTADO':
+        return 'Agotado';
+      default:
+        return estado;
+    }
+  }
+
+  // Método para verificar si el producto está en stock
+  bool get hasStock => stock > 0;
+
+  // Método para obtener el nivel de stock
+  String get stockLevel {
+    if (stock <= 0) return 'Agotado';
+    if (stock < 10) return 'Últimas unidades';
+    if (stock < 50) return 'Stock limitado';
+    return 'En stock';
+  }
+
+  @override
+  String toString() {
+    return 'Product(id: $id, nombre: $nombre, precio: $precio, stock: $stock, estado: $estado)';
+  }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is Product &&
+        other.id == id &&
+        other.nombre == nombre &&
+        other.precio == precio &&
+        other.stock == stock &&
+        other.estado == estado;
+  }
+
+  @override
+  int get hashCode {
+    return id.hashCode ^
+        nombre.hashCode ^
+        precio.hashCode ^
+        stock.hashCode ^
+        estado.hashCode;
   }
 }
 
@@ -94,7 +174,7 @@ List<Product> demoProducts = [
     id: 1,
     nombre: "Samsung Galaxy S21",
     descripcion: "El Samsung Galaxy S21 es un teléfono inteligente Android de gama alta fabricado por Samsung Electronics.",
-    images: ["assets/images/product_1.png"],
+    imagenes: ["assets/images/product_1.png"],
     precio: 799.99,
     stock: 100,
     estado: "ACTIVO",
@@ -108,7 +188,7 @@ List<Product> demoProducts = [
     id: 2,
     nombre: "Nike Air Max 270",
     descripcion: "Las zapatillas Nike Air Max 270 ofrecen un estilo llamativo y una gran comodidad.",
-    images: ["assets/images/product_2.png"],
+    imagenes: ["assets/images/product_2.png"],
     precio: 129.99,
     stock: 50,
     estado: "ACTIVO",
@@ -121,7 +201,7 @@ List<Product> demoProducts = [
     id: 3,
     nombre: "Apple Watch Series 7",
     descripcion: "El Apple Watch Series 7 tiene la pantalla más grande y avanzada hasta ahora.",
-    images: ["assets/images/product_3.png"],
+    imagenes: ["assets/images/product_3.png"],
     precio: 399.99,
     stock: 75,
     estado: "ACTIVO",
@@ -134,7 +214,7 @@ List<Product> demoProducts = [
     id: 4,
     nombre: "Logitech MX Master 3",
     descripcion: "El ratón inalámbrico avanzado con desplazamiento ultrarrápido.",
-    images: ["assets/images/product_4.png"],
+    imagenes: ["assets/images/product_4.png"],
     precio: 99.99,
     stock: 120,
     estado: "ACTIVO",
@@ -147,7 +227,7 @@ List<Product> demoProducts = [
     id: 5,
     nombre: "Sony WH-1000XM4",
     descripcion: "Auriculares inalámbricos con cancelación de ruido líder en la industria.",
-    images: ["assets/images/product_5.png"],
+    imagenes: ["assets/images/product_5.png"],
     precio: 349.99,
     stock: 60,
     estado: "ACTIVO",

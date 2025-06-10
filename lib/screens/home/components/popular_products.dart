@@ -1,113 +1,136 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../../components/product_card.dart';
 import '../../../models/product.dart';
+import '../../../providers/cart_provider.dart';
 import '../../../utils/responsive_layout.dart';
 import '../../../utils/size_config.dart';
 import 'section_title.dart';
 
 //Parametros producto popular
 class PopularProducts extends StatelessWidget {
+  final List<Product> products;
+
   const PopularProducts({
-    super.key,
-  });
+    Key? key,
+    required this.products,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    // Determinar si estamos en escritorio o móvil
-    final isDesktop = ResponsiveLayout.isDesktop(context);
-    final isTablet = ResponsiveLayout.isTablet(context);
-    final screenWidth = MediaQuery.of(context).size.width;
-    final isExtraLargeDesktop = screenWidth > 1800;
-    
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SectionTitle(
-          text: "Productos Populares",
-          press: (){},
+        Padding(
+          padding: EdgeInsets.symmetric(
+            horizontal: getProportionateScreenWidth(20),
+          ),
+          child: Text(
+            "Productos Populares",
+            style: TextStyle(
+              fontSize: getProportionateScreenWidth(18),
+              fontWeight: FontWeight.bold,
+            ),
+          ),
         ),
         SizedBox(height: getProportionateScreenWidth(20)),
-        
-        // En escritorio, mostrar productos en grid
-        if (isDesktop || isTablet)
-          _buildDesktopProductGrid(context, isExtraLargeDesktop)
-        // En móvil, mostrar productos en carrusel horizontal
-        else
-          _buildMobileProductCarousel(context),
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              ...List.generate(
+                products.length,
+                (index) => ProductCard(
+                  product: products[index],
+                ),
+              ),
+              SizedBox(width: getProportionateScreenWidth(20)),
+            ],
+          ),
+        ),
       ],
     );
   }
-  
-  // Grid de productos para escritorio
-  Widget _buildDesktopProductGrid(BuildContext context, bool isExtraLargeDesktop) {
-    // Determinar el número de columnas según el ancho de la pantalla
-    final screenWidth = MediaQuery.of(context).size.width;
-    int crossAxisCount;
-    
-    if (isExtraLargeDesktop) {
-      crossAxisCount = 4; // 4 columnas para pantallas extra grandes
-    } else if (screenWidth > 1400) {
-      crossAxisCount = 3; // 3 columnas para pantallas grandes
-    } else if (screenWidth > 900) {
-      crossAxisCount = 2; // 2 columnas para pantallas medianas
-    } else {
-      crossAxisCount = 1; // 1 columna para pantallas pequeñas
-    }
-    
-    // Calcular el espaciado entre elementos
-    final double spacing = isExtraLargeDesktop ? 30.0 : 20.0;
-    
-    return Padding(
-      padding: EdgeInsets.symmetric(horizontal: getProportionateScreenWidth(20)),
-      child: GridView.builder(
-        shrinkWrap: true,
-        physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-          crossAxisCount: crossAxisCount,
-          childAspectRatio: 0.75, // Proporción altura/ancho de cada elemento
-          crossAxisSpacing: spacing,
-          mainAxisSpacing: spacing,
-        ),
-        itemCount: demoProducts.length,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: const EdgeInsets.all(0),
-            child: ProductCard(
-              product: demoProducts[index],
-              press: () {
-                // Navegar a la pantalla de detalles del producto
-              },
-              width: double.infinity, // Ancho completo dentro de la celda
-            ),
-          );
-        },
-      ),
-    );
-  }
-  
-  // Carrusel de productos para móvil
-  Widget _buildMobileProductCarousel(BuildContext context) {
-    return SingleChildScrollView(
-      scrollDirection: Axis.horizontal,
-      child: Row(
+}
+
+class ProductCard extends StatelessWidget {
+  final Product product;
+
+  const ProductCard({
+    Key? key,
+    required this.product,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: getProportionateScreenWidth(140),
+      margin: EdgeInsets.only(left: getProportionateScreenWidth(20)),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          //aqui parametro de list de productos editar para la Api
-          ...List.generate(
-            demoProducts.length, 
-            (index) => ProductCard(
-              product: demoProducts[index],
-              press: () {
-                // Navegar a la pantalla de detalles del producto
-                // Navigator.pushNamed(
-                //   context, 
-                //   DetailsScreen.routeName,
-                //   arguments: ProductDetailsArguments(product: demoProducts[index]),
-                // );
-              },
+          AspectRatio(
+            aspectRatio: 1.02,
+            child: Container(
+              padding: EdgeInsets.all(getProportionateScreenWidth(20)),
+              decoration: BoxDecoration(
+                color: Colors.grey[200],
+                borderRadius: BorderRadius.circular(15),
+              ),
+              child: Image.network(
+                product.imagenes.isNotEmpty ? product.imagenes[0] : '',
+                errorBuilder: (context, error, stackTrace) {
+                  return const Icon(Icons.error);
+                },
+              ),
             ),
           ),
-          SizedBox(width: getProportionateScreenWidth(20)),
+          const SizedBox(height: 10),
+          Text(
+            product.nombre,
+            style: const TextStyle(color: Colors.black),
+            maxLines: 2,
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "\$${product.precio}",
+                style: TextStyle(
+                  fontSize: getProportionateScreenWidth(18),
+                  fontWeight: FontWeight.w600,
+                  color: Colors.blue,
+                ),
+              ),
+              InkWell(
+                borderRadius: BorderRadius.circular(50),
+                onTap: () {
+                  context.read<CartProvider>().addItem(product.id);
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Producto agregado al carrito'),
+                      duration: Duration(seconds: 2),
+                    ),
+                  );
+                },
+                child: Container(
+                  padding: EdgeInsets.all(getProportionateScreenWidth(8)),
+                  height: getProportionateScreenWidth(28),
+                  width: getProportionateScreenWidth(28),
+                  decoration: BoxDecoration(
+                    color: Colors.blue,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.add,
+                    color: Colors.white,
+                    size: 16,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ],
       ),
     );

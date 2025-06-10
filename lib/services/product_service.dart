@@ -10,7 +10,7 @@ class ProductService {
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
   // Obtener todos los productos (paginados)
-  Future<Map<String, dynamic>> getProducts({
+  Future<List<Product>> getProducts({
     int page = 0,
     int size = 10,
     String sort = "id",
@@ -40,14 +40,7 @@ class ProductService {
         final List<dynamic> productsJson = data['content'];
         final List<Product> products = productsJson.map((json) => Product.fromJson(json)).toList();
         
-        return {
-          'products': products,
-          'totalElements': data['totalElements'],
-          'totalPages': data['totalPages'],
-          'currentPage': data['number'],
-          'hasNext': !data['last'],
-          'hasPrevious': !data['first'],
-        };
+        return products;
       } else {
         throw Exception('Failed to get products: ${response.statusCode}');
       }
@@ -280,7 +273,7 @@ class ProductService {
   }
 
   // Actualizar producto
-  Future<Product> updateProduct(int productId, Product product) async {
+  Future<Product> updateProduct(int id, Product product) async {
     try {
       final token = await _secureStorage.read(key: ApiConstants.tokenKey);
 
@@ -288,12 +281,9 @@ class ProductService {
         throw Exception('No authentication token found');
       }
 
-      print('[DEBUG_LOG] Updating product');
-      final url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.productsEndpoint}/$productId');
+      print('[DEBUG_LOG] Updating product with ID: $id');
+      final url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.productsEndpoint}/$id');
       print('[DEBUG_LOG] API URL: $url');
-
-      final requestBody = jsonEncode(product.toJson());
-      print('[DEBUG_LOG] Request body: $requestBody');
 
       final response = await _client.put(
         url,
@@ -301,7 +291,7 @@ class ProductService {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
-        body: requestBody,
+        body: jsonEncode(product.toJson()),
       );
 
       print('[DEBUG_LOG] Update product response status code: ${response.statusCode}');
@@ -310,22 +300,22 @@ class ProductService {
       if (response.statusCode == 200) {
         return Product.fromJson(jsonDecode(response.body));
       } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
+        throw Exception('No autorizado para actualizar productos');
       } else if (response.statusCode == 403) {
-        throw Exception('You do not have permission to update products.');
+        throw Exception('No tiene permisos para actualizar productos');
       } else if (response.statusCode == 404) {
-        throw Exception('Product not found with ID: $productId');
+        throw Exception('Producto no encontrado');
       } else {
-        throw Exception('Failed to update product: ${response.statusCode}');
+        throw Exception('Error al actualizar el producto: ${response.statusCode}');
       }
     } catch (e) {
       print('[DEBUG_LOG] Error updating product: $e');
-      throw Exception('Error updating product: ${e.toString()}');
+      throw Exception('Error al actualizar el producto: ${e.toString()}');
     }
   }
 
   // Eliminar producto
-  Future<void> deleteProduct(int productId) async {
+  Future<void> deleteProduct(int id) async {
     try {
       final token = await _secureStorage.read(key: ApiConstants.tokenKey);
 
@@ -333,8 +323,8 @@ class ProductService {
         throw Exception('No authentication token found');
       }
 
-      print('[DEBUG_LOG] Deleting product');
-      final url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.productsEndpoint}/$productId');
+      print('[DEBUG_LOG] Deleting product with ID: $id');
+      final url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.productsEndpoint}/$id');
       print('[DEBUG_LOG] API URL: $url');
 
       final response = await _client.delete(
@@ -350,17 +340,42 @@ class ProductService {
       if (response.statusCode == 204) {
         return;
       } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
+        throw Exception('No autorizado para eliminar productos');
       } else if (response.statusCode == 403) {
-        throw Exception('You do not have permission to delete products.');
+        throw Exception('No tiene permisos para eliminar productos');
       } else if (response.statusCode == 404) {
-        throw Exception('Product not found with ID: $productId');
+        throw Exception('Producto no encontrado');
       } else {
-        throw Exception('Failed to delete product: ${response.statusCode}');
+        throw Exception('Error al eliminar el producto: ${response.statusCode}');
       }
     } catch (e) {
       print('[DEBUG_LOG] Error deleting product: $e');
-      throw Exception('Error deleting product: ${e.toString()}');
+      throw Exception('Error al eliminar el producto: ${e.toString()}');
+    }
+  }
+
+  // Método auxiliar para obtener el token de autenticación
+  Future<String> _getAuthToken() async {
+    final token = await _secureStorage.read(key: ApiConstants.tokenKey);
+    if (token == null) {
+      throw Exception('No authentication token found');
+    }
+    return token;
+  }
+
+  // Método auxiliar para manejar errores HTTP
+  void _handleHttpError(int statusCode) {
+    switch (statusCode) {
+      case 401:
+        throw Exception('No autorizado');
+      case 403:
+        throw Exception('No tiene permisos para realizar esta acción');
+      case 404:
+        throw Exception('Recurso no encontrado');
+      case 500:
+        throw Exception('Error interno del servidor');
+      default:
+        throw Exception('Error en la solicitud: $statusCode');
     }
   }
 }

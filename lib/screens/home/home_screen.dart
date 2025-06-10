@@ -99,10 +99,18 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                 color: Theme.of(context).colorScheme.onSurface,
               ),
               onPressed: () {
-                // Aquí iría la lógica para cambiar el tema
+                // TODO: Implementar cambio de tema
               },
             ),
-            // Botón de cerrar sesión
+            IconButton(
+              icon: Icon(
+                Icons.shopping_cart_outlined,
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+              onPressed: () {
+                // TODO: Navegar al carrito
+              },
+            ),
             IconButton(
               icon: Icon(
                 Icons.logout,
@@ -163,7 +171,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
             ),
             tooltip: isDarkMode ? "Modo claro" : "Modo oscuro",
             onPressed: () {
-              // Aquí iría la lógica para cambiar el tema
+              // TODO: Implementar cambio de tema
             },
           ),
           
@@ -171,90 +179,31 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
           
           // Botón de notificaciones
           IconButton(
-            icon: Badge(
-              label: const Text("3"),
-              child: Icon(
-                Icons.notifications_none_outlined,
-                color: Theme.of(context).colorScheme.onSurface,
-                size: 22,
-              ),
+            icon: Icon(
+              Icons.shopping_cart_outlined,
+              color: Theme.of(context).colorScheme.onSurface,
+              size: 22,
             ),
-            tooltip: "Notificaciones",
+            tooltip: "Carrito de compras",
             onPressed: () {
-              // Aquí iría la lógica para mostrar notificaciones
+              // TODO: Navegar al carrito
             },
           ),
           
           const SizedBox(width: 8),
           
           // Perfil del usuario
-          InkWell(
-            onTap: () {
-              // Navegar a la pantalla de perfil
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const ProfileScreen()),
-              );
-              
-              // Si estamos en la pestaña de perfil, no hacer nada más
-              if (_selectedIndex == 4) return;
-              
-              // Actualizar el índice seleccionado para sincronizar con NavigationRail
-              setState(() {
-                _selectedIndex = 4; // Índice de la pestaña de perfil
-              });
-            },
-            borderRadius: BorderRadius.circular(30),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              child: Row(
-                children: [
-                  // Avatar
-                  CircleAvatar(
-                    radius: 18,
-                    backgroundColor: Theme.of(context).colorScheme.primary,
-                    child: Text(
-                      authProvider.user?.username.substring(0, 1).toUpperCase() ?? "U",
-                      style: const TextStyle(
-                        fontSize: 14,
-                        color: Colors.white,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-                  
-                  const SizedBox(width: 8),
-                  
-                  // Nombre de usuario
-                  Text(
-                    authProvider.user?.username ?? "Usuario",
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.w500,
-                      color: Theme.of(context).colorScheme.onSurface,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-          
-          const SizedBox(width: 8),
-          
-          // Botón de cerrar sesión
           IconButton(
             icon: Icon(
-              Icons.logout,
+              Icons.person_outline,
               color: Theme.of(context).colorScheme.onSurface,
               size: 22,
             ),
-            tooltip: "Cerrar sesión",
-            onPressed: () async {
-              await authProvider.logout();
-              if (context.mounted) {
-                Navigator.of(context).pushReplacement(
-                  MaterialPageRoute(builder: (context) => const LoginScreen()),
-                );
-              }
+            tooltip: "Perfil",
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (context) => const ProfileScreen()),
+              );
             },
           ),
         ],
@@ -264,175 +213,70 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
   
   // NavigationRail para escritorio
   Widget _buildNavigationRail(BuildContext context) {
-    final isTablet = ResponsiveLayout.isTablet(context);
-    final labelType = isTablet 
-        ? NavigationRailLabelType.none 
-        : NavigationRailLabelType.selected;
-    
     return NavigationRail(
+      extended: MediaQuery.of(context).size.width >= 800,
+      destinations: const [
+        NavigationRailDestination(
+          icon: Icon(Icons.home_outlined),
+          selectedIcon: Icon(Icons.home),
+          label: Text('Inicio'),
+        ),
+        NavigationRailDestination(
+          icon: Icon(Icons.category_outlined),
+          selectedIcon: Icon(Icons.category),
+          label: Text('Categorías'),
+        ),
+        NavigationRailDestination(
+          icon: Icon(Icons.local_offer_outlined),
+          selectedIcon: Icon(Icons.local_offer),
+          label: Text('Ofertas'),
+        ),
+        NavigationRailDestination(
+          icon: Icon(Icons.favorite_outline),
+          selectedIcon: Icon(Icons.favorite),
+          label: Text('Favoritos'),
+        ),
+      ],
       selectedIndex: _selectedIndex,
       onDestinationSelected: (int index) {
         setState(() {
           _selectedIndex = index;
         });
-        
-        // Navegar a la pantalla correspondiente según el índice
-        if (index == 4) { // Índice de la pestaña de perfil
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => const ProfileScreen()),
-          );
-        }
-        // Aquí se pueden agregar más navegaciones para otras pestañas
       },
-      labelType: labelType,
-      useIndicator: true,
-      indicatorColor: Theme.of(context).colorScheme.secondaryContainer,
-      backgroundColor: Theme.of(context).colorScheme.surface,
-      selectedIconTheme: IconThemeData(
-        color: Theme.of(context).colorScheme.primary,
-      ),
-      unselectedIconTheme: IconThemeData(
-        color: Theme.of(context).colorScheme.onSurfaceVariant,
-      ),
-      selectedLabelTextStyle: TextStyle(
-        color: Theme.of(context).colorScheme.primary,
-        fontWeight: FontWeight.bold,
-        fontSize: 12,
-      ),
-      unselectedLabelTextStyle: TextStyle(
-        color: Theme.of(context).colorScheme.onSurfaceVariant,
-        fontSize: 12,
-      ),
-      leading: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16.0),
-        child: Column(
-          children: [
-            // Logo
-            Image.asset(
-              'assets/images/logo.png',
-              height: 40,
-              errorBuilder: (context, error, stackTrace) {
-                return Icon(
-                  Icons.shopping_bag,
-                  size: 32,
-                  color: Theme.of(context).colorScheme.primary,
-                );
-              },
-            ),
-            if (!isTablet) const SizedBox(height: 8),
-            if (!isTablet)
-              Text(
-                "EcoShopping",
-                style: TextStyle(
-                  color: Theme.of(context).colorScheme.primary,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 12,
-                ),
-              ),
-          ],
-        ),
-      ),
-      destinations: [
-        NavigationRailDestination(
-          icon: const Icon(Icons.home_outlined),
-          selectedIcon: const Icon(Icons.home),
-          label: const Text('Inicio'),
-        ),
-        NavigationRailDestination(
-          icon: const Icon(Icons.favorite_border),
-          selectedIcon: const Icon(Icons.favorite),
-          label: const Text('Favoritos'),
-        ),
-        NavigationRailDestination(
-          icon: const Badge(
-            label: Text('2'),
-            child: Icon(Icons.shopping_cart_outlined),
-          ),
-          selectedIcon: const Badge(
-            label: Text('2'),
-            child: Icon(Icons.shopping_cart),
-          ),
-          label: const Text('Carrito'),
-        ),
-        NavigationRailDestination(
-          icon: const Badge(
-            label: Text('3'),
-            child: Icon(Icons.chat_bubble_outline),
-          ),
-          selectedIcon: const Badge(
-            label: Text('3'),
-            child: Icon(Icons.chat_bubble),
-          ),
-          label: const Text('Chat'),
-        ),
-        NavigationRailDestination(
-          icon: const Icon(Icons.person_outline),
-          selectedIcon: const Icon(Icons.person),
-          label: const Text('Perfil'),
-        ),
-      ],
     );
   }
 
   // BottomNavigationBar para móvil
   Widget _buildBottomNavigationBar(BuildContext context) {
-    return BottomNavigationBar(
-      type: BottomNavigationBarType.fixed,
-      currentIndex: _selectedIndex,
-      selectedItemColor: Theme.of(context).colorScheme.primary,
-      unselectedItemColor: Theme.of(context).colorScheme.onSurfaceVariant,
-      items: const [
-        BottomNavigationBarItem(
-          icon: Icon(Icons.home_outlined),
-          activeIcon: Icon(Icons.home),
-          label: "Inicio",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.favorite_border),
-          activeIcon: Icon(Icons.favorite),
-          label: "Favoritos",
-        ),
-        BottomNavigationBarItem(
-          icon: Badge(
-            label: Text('2'),
-            child: Icon(Icons.shopping_cart_outlined),
-          ),
-          activeIcon: Badge(
-            label: Text('2'),
-            child: Icon(Icons.shopping_cart),
-          ),
-          label: "Carrito",
-        ),
-        BottomNavigationBarItem(
-          icon: Badge(
-            label: Text('3'),
-            child: Icon(Icons.chat_bubble_outline),
-          ),
-          activeIcon: Badge(
-            label: Text('3'),
-            child: Icon(Icons.chat_bubble),
-          ),
-          label: "Chat",
-        ),
-        BottomNavigationBarItem(
-          icon: Icon(Icons.person_outline),
-          activeIcon: Icon(Icons.person),
-          label: "Perfil",
-        ),
-      ],
-      onTap: (index) {
+    return NavigationBar(
+      selectedIndex: _selectedIndex,
+      onDestinationSelected: (int index) {
         setState(() {
           _selectedIndex = index;
         });
-        
-        // Navegar a la pantalla correspondiente según el índice
-        if (index == 4) { // Índice de la pestaña de perfil
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (context) => const ProfileScreen()),
-          );
-        }
-        // Aquí se pueden agregar más navegaciones para otras pestañas
       },
+      destinations: const [
+        NavigationDestination(
+          icon: Icon(Icons.home_outlined),
+          selectedIcon: Icon(Icons.home),
+          label: 'Inicio',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.category_outlined),
+          selectedIcon: Icon(Icons.category),
+          label: 'Categorías',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.local_offer_outlined),
+          selectedIcon: Icon(Icons.local_offer),
+          label: 'Ofertas',
+        ),
+        NavigationDestination(
+          icon: Icon(Icons.favorite_outline),
+          selectedIcon: Icon(Icons.favorite),
+          label: 'Favoritos',
+        ),
+      ],
     );
   }
   
@@ -440,17 +284,15 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
   String _getPageTitle() {
     switch (_selectedIndex) {
       case 0:
-        return "Inicio";
+        return 'Inicio';
       case 1:
-        return "Favoritos";
+        return 'Categorías';
       case 2:
-        return "Carrito de Compras";
+        return 'Ofertas';
       case 3:
-        return "Chat";
-      case 4:
-        return "Perfil";
+        return 'Favoritos';
       default:
-        return "Inicio";
+        return 'EcoShopping';
     }
   }
 }

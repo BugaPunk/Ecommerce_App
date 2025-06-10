@@ -3,186 +3,114 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 import '../models/order.dart';
+import '../utils/api_config.dart';
+import '../utils/auth_utils.dart';
 import 'api_constants.dart';
 
 class OrderService {
   final http.Client _client = http.Client();
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+  final String baseUrl = ApiConfig.baseUrl;
 
-  // Procesar pedido
-  Future<Order> processOrder(int userId) async {
+  // Procesar un nuevo pedido
+  Future<Order> processOrder() async {
     try {
-      final token = await _secureStorage.read(key: ApiConstants.tokenKey);
-
+      final token = await AuthUtils.getToken();
       if (token == null) {
-        throw Exception('No authentication token found');
+        throw Exception('No hay token de autenticación');
       }
 
-      print('[DEBUG_LOG] Processing order');
-      final url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.ordersEndpoint}/$userId');
-      print('[DEBUG_LOG] API URL: $url');
-
-      final response = await _client.post(
-        url,
+      final response = await http.post(
+        Uri.parse('$baseUrl/api/pedidos'),
         headers: {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
       );
 
-      print('[DEBUG_LOG] Process order response status code: ${response.statusCode}');
-      print('[DEBUG_LOG] Process order response body: ${response.body}');
-
-      if (response.statusCode == 200) {
-        return Order.fromJson(jsonDecode(response.body));
-      } else if (response.statusCode == 400) {
-        final errorBody = jsonDecode(response.body);
-        throw Exception(errorBody['message'] ?? 'Invalid data provided');
-      } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
-      } else if (response.statusCode == 403) {
-        throw Exception('You do not have permission to process this order.');
-      } else if (response.statusCode == 404) {
-        throw Exception('Cart not found for user with ID: $userId');
+      if (response.statusCode == 201) {
+        return Order.fromJson(json.decode(response.body));
       } else {
-        throw Exception('Failed to process order: ${response.statusCode}');
+        throw Exception('Error al procesar el pedido: ${response.statusCode}');
       }
     } catch (e) {
-      print('[DEBUG_LOG] Error processing order: $e');
-      throw Exception('Error processing order: ${e.toString()}');
+      throw Exception('Error al procesar el pedido: $e');
     }
   }
 
-  // Obtener pedido por ID
-  Future<Order> getOrderById(int orderId) async {
+  // Obtener un pedido por ID
+  Future<Order> getOrderById(int id) async {
     try {
-      final token = await _secureStorage.read(key: ApiConstants.tokenKey);
-
+      final token = await AuthUtils.getToken();
       if (token == null) {
-        throw Exception('No authentication token found');
+        throw Exception('No hay token de autenticación');
       }
 
-      print('[DEBUG_LOG] Getting order by ID');
-      final url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.ordersEndpoint}/$orderId');
-      print('[DEBUG_LOG] API URL: $url');
-
-      final response = await _client.get(
-        url,
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/pedidos/$id'),
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
       );
 
-      print('[DEBUG_LOG] Get order by ID response status code: ${response.statusCode}');
-      print('[DEBUG_LOG] Get order by ID response body: ${response.body}');
-
       if (response.statusCode == 200) {
-        return Order.fromJson(jsonDecode(response.body));
-      } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
-      } else if (response.statusCode == 403) {
-        throw Exception('You do not have permission to access this order.');
-      } else if (response.statusCode == 404) {
-        throw Exception('Order not found with ID: $orderId');
+        return Order.fromJson(json.decode(response.body));
       } else {
-        throw Exception('Failed to get order by ID: ${response.statusCode}');
+        throw Exception('Error al obtener el pedido: ${response.statusCode}');
       }
     } catch (e) {
-      print('[DEBUG_LOG] Error getting order by ID: $e');
-      throw Exception('Error getting order by ID: ${e.toString()}');
+      throw Exception('Error al obtener el pedido: $e');
     }
   }
 
-  // Listar pedidos por usuario
-  Future<List<Order>> getOrdersByUser(int userId) async {
+  // Obtener todos los pedidos del usuario
+  Future<List<Order>> getUserOrders() async {
     try {
-      final token = await _secureStorage.read(key: ApiConstants.tokenKey);
-
+      final token = await AuthUtils.getToken();
       if (token == null) {
-        throw Exception('No authentication token found');
+        throw Exception('No hay token de autenticación');
       }
 
-      print('[DEBUG_LOG] Getting orders by user');
-      final url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.ordersEndpoint}/usuario/$userId');
-      print('[DEBUG_LOG] API URL: $url');
-
-      final response = await _client.get(
-        url,
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/pedidos'),
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
       );
 
-      print('[DEBUG_LOG] Get orders by user response status code: ${response.statusCode}');
-      print('[DEBUG_LOG] Get orders by user response body: ${response.body}');
-
       if (response.statusCode == 200) {
-        final List<dynamic> ordersJson = jsonDecode(response.body);
-        return ordersJson.map((json) => Order.fromJson(json)).toList();
-      } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
-      } else if (response.statusCode == 403) {
-        throw Exception('You do not have permission to access these orders.');
-      } else if (response.statusCode == 404) {
-        throw Exception('User not found with ID: $userId');
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((json) => Order.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to get orders by user: ${response.statusCode}');
+        throw Exception('Error al obtener los pedidos: ${response.statusCode}');
       }
     } catch (e) {
-      print('[DEBUG_LOG] Error getting orders by user: $e');
-      throw Exception('Error getting orders by user: ${e.toString()}');
+      throw Exception('Error al obtener los pedidos: $e');
     }
   }
 
-  // Actualizar estado de pedido
-  Future<Order> updateOrderStatus(int orderId, String status) async {
+  // Actualizar el estado de un pedido
+  Future<Order> updateOrderStatus(int id, String status) async {
     try {
-      final token = await _secureStorage.read(key: ApiConstants.tokenKey);
-
+      final token = await AuthUtils.getToken();
       if (token == null) {
-        throw Exception('No authentication token found');
+        throw Exception('No hay token de autenticación');
       }
 
-      // Validar que el estado sea uno de los permitidos
-      final validStatuses = ['PENDIENTE', 'PAGADO', 'EN_PREPARACION', 'ENVIADO', 'ENTREGADO', 'CANCELADO'];
-      if (!validStatuses.contains(status)) {
-        throw Exception('Invalid order status. Must be one of: ${validStatuses.join(', ')}');
-      }
-
-      print('[DEBUG_LOG] Updating order status');
-      final url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.ordersEndpoint}/$orderId/estado?estado=$status');
-      print('[DEBUG_LOG] API URL: $url');
-
-      final response = await _client.patch(
-        url,
+      final response = await http.patch(
+        Uri.parse('$baseUrl/api/pedidos/$id/estado?estado=$status'),
         headers: {
-          'Content-Type': 'application/json',
           'Authorization': 'Bearer $token',
         },
       );
 
-      print('[DEBUG_LOG] Update order status response status code: ${response.statusCode}');
-      print('[DEBUG_LOG] Update order status response body: ${response.body}');
-
       if (response.statusCode == 200) {
-        return Order.fromJson(jsonDecode(response.body));
-      } else if (response.statusCode == 400) {
-        final errorBody = jsonDecode(response.body);
-        throw Exception(errorBody['message'] ?? 'Invalid data provided');
-      } else if (response.statusCode == 401) {
-        throw Exception('Session expired. Please login again.');
-      } else if (response.statusCode == 403) {
-        throw Exception('You do not have permission to update this order.');
-      } else if (response.statusCode == 404) {
-        throw Exception('Order not found with ID: $orderId');
+        return Order.fromJson(json.decode(response.body));
       } else {
-        throw Exception('Failed to update order status: ${response.statusCode}');
+        throw Exception('Error al actualizar el estado del pedido: ${response.statusCode}');
       }
     } catch (e) {
-      print('[DEBUG_LOG] Error updating order status: $e');
-      throw Exception('Error updating order status: ${e.toString()}');
+      throw Exception('Error al actualizar el estado del pedido: $e');
     }
   }
 }

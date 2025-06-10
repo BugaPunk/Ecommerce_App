@@ -16,18 +16,20 @@ class User {
     required this.firstName,
     required this.lastName,
     required this.roles,
-    this.active = true,
+    required this.active,
   });
+
+  String get nombre => '$firstName $lastName';
 
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id'],
       username: json['username'],
       email: json['email'],
-      firstName: json['firstName'] ?? '',
-      lastName: json['lastName'] ?? '',
+      firstName: json['firstName'],
+      lastName: json['lastName'],
       roles: List<String>.from(json['roles']),
-      active: json['active'] ?? true,
+      active: json['active'],
     );
   }
 
