@@ -7,6 +7,7 @@ import 'providers/auth_provider.dart';
 import 'providers/admin_provider.dart';
 import 'providers/product_provider.dart';
 import 'providers/store_provider.dart';
+import 'providers/cart_provider.dart';
 import 'routes.dart';
 
 void main() {
@@ -17,6 +18,7 @@ void main() {
         ChangeNotifierProvider(create: (_) => AdminProvider()),
         ChangeNotifierProvider(create: (_) => ProductProvider()),
         ChangeNotifierProvider(create: (_) => StoreProvider()),
+        ChangeNotifierProvider(create: (_) => CartProvider()),
       ],
       child: const MyApp(),
     ),

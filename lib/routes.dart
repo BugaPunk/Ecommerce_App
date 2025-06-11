@@ -20,6 +20,7 @@ import 'screens/vendor/product_list_screen.dart';
 import 'screens/vendor/product_detail_screen.dart';
 import 'screens/vendor/product_form_screen.dart';
 import 'screens/vendor/vendor_dashboard_screen.dart';
+import 'screens/cart/cart_screen.dart';
 
 
 class AppRoutes {
@@ -30,16 +31,17 @@ class AppRoutes {
   static const String changePassword = '/change-password';
   static const String home = '/home';
   static const String categories = '/categories';
+  static const String cart = '/cart';
   static const String vendorHome = '/vendor/home';
   static const String vendorDashboard = '/vendor/dashboard';
   static const String addEditProduct = '/vendor/product';
-  
+
   // Product routes
   static const String productList = '/vendor/products';
   static const String productDetail = '/vendor/product-detail';
   static const String productForm = '/vendor/product-form';
   static const String clientProductDetail = '/product-detail';
-  
+
   // Admin routes
   static const String adminDashboard = '/admin/dashboard';
   static const String adminUsers = '/admin/users';
@@ -57,14 +59,15 @@ class AppRoutes {
       changePassword: (context) => const ChangePasswordScreen(),
       home: (context) => const ClientHomeScreen(),
       categories: (context) => const CategoriesScreen(),
+      cart: (context) => const CartScreen(),
       vendorHome: (context) => const VendorHomeScreen(),
       vendorDashboard: (context) => const VendorDashboardScreen(),
       addEditProduct: (context) => const AddEditProductScreen(),
-      
+
       // Product routes
       productList: (context) => const ProductListScreen(),
       productForm: (context) => const ProductFormScreen(),
-      
+
       // Admin routes
       adminDashboard: (context) => const AdminDashboardScreen(),
       adminUsers: (context) => const UserListScreen(),
@@ -134,7 +137,7 @@ class AppRoutes {
           ),
         );
     }
-    
+
     // Fallback para rutas con argumentos faltantes
     return MaterialPageRoute(
       builder: (context) => const Scaffold(

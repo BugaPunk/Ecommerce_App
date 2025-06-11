@@ -11,7 +11,7 @@ import 'components/categories_screen.dart';
 
 class ClientHomeScreen extends StatefulWidget {
   static String routeName = "/client_home";
-  
+
   const ClientHomeScreen({super.key});
 
   @override
@@ -20,16 +20,16 @@ class ClientHomeScreen extends StatefulWidget {
 
 class _ClientHomeScreenState extends State<ClientHomeScreen> {
   int _selectedIndex = 0;
-  
+
   @override
   Widget build(BuildContext context) {
     // Inicializar SizeConfig
     SizeConfig().init(context);
-    
+
     final authProvider = Provider.of<AuthProvider>(context);
     final user = authProvider.user;
     final isDarkMode = Theme.of(context).brightness == Brightness.dark;
-    
+
     // Determinar si estamos en escritorio o móvil
     final isDesktop = ResponsiveLayout.isDesktop(context);
     final isTablet = ResponsiveLayout.isTablet(context);
@@ -44,21 +44,21 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
             children: [
               // NavigationRail para escritorio
               _buildNavigationRail(context),
-              
+
               // Línea divisoria vertical
               VerticalDivider(
                 thickness: 1, 
                 width: 1,
                 color: Theme.of(context).dividerColor,
               ),
-              
+
               // Contenido principal
               Expanded(
                 child: Column(
                   children: [
                     // AppBar personalizado para escritorio
                     _buildDesktopAppBar(context, authProvider, isDarkMode),
-                    
+
                     // Contenido principal
                     Expanded(
                       child: _getSelectedScreen(),
@@ -112,7 +112,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                 color: Theme.of(context).colorScheme.onSurface,
               ),
               onPressed: () {
-                // TODO: Navegar al carrito
+                Navigator.pushNamed(context, '/cart');
               },
             ),
             // Menú de usuario
@@ -174,7 +174,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                   ),
                 ),
                 const PopupMenuDivider(),
-                
+
                 // Opción de perfil
                 PopupMenuItem<String>(
                   value: 'profile',
@@ -190,7 +190,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                     ],
                   ),
                 ),
-                
+
                 // Opción de cerrar sesión
                 PopupMenuItem<String>(
                   value: 'logout',
@@ -234,11 +234,11 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
       );
     }
   }
-  
+
   // AppBar personalizado para escritorio
   Widget _buildDesktopAppBar(BuildContext context, AuthProvider authProvider, bool isDarkMode) {
     final user = authProvider.user;
-    
+
     return Container(
       height: 64,
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -263,9 +263,9 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
               color: Theme.of(context).colorScheme.onSurface,
             ),
           ),
-          
+
           const Spacer(),
-          
+
           // Botón de modo oscuro/claro
           IconButton(
             icon: Icon(
@@ -278,9 +278,9 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
               // TODO: Implementar cambio de tema
             },
           ),
-          
+
           const SizedBox(width: 8),
-          
+
           // Botón de carrito
           IconButton(
             icon: Icon(
@@ -290,12 +290,12 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
             ),
             tooltip: "Carrito de compras",
             onPressed: () {
-              // TODO: Navegar al carrito
+              Navigator.pushNamed(context, '/cart');
             },
           ),
-          
+
           const SizedBox(width: 8),
-          
+
           // Menú de usuario con PopupMenuButton
           PopupMenuButton<String>(
             offset: const Offset(0, 40),
@@ -354,7 +354,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                 ),
               ),
               const PopupMenuDivider(),
-              
+
               // Opción de perfil
               PopupMenuItem<String>(
                 value: 'profile',
@@ -370,7 +370,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                   ],
                 ),
               ),
-              
+
               // Opción de cerrar sesión
               PopupMenuItem<String>(
                 value: 'logout',
@@ -411,11 +411,11 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
       ),
     );
   }
-  
+
   // NavigationRail para escritorio
   Widget _buildNavigationRail(BuildContext context) {
     final isExtended = MediaQuery.of(context).size.width >= 800;
-    
+
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surface,
@@ -535,7 +535,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
       ],
     );
   }
-  
+
   // Obtener el título de la página actual
   String _getPageTitle() {
     switch (_selectedIndex) {
@@ -551,7 +551,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
         return 'EcoShopping';
     }
   }
-  
+
   // Obtener la pantalla seleccionada
   Widget _getSelectedScreen() {
     switch (_selectedIndex) {
