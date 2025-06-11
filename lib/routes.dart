@@ -1,4 +1,6 @@
+import 'package:ecommerce_app/screens/home/components/details/details_screen.dart';
 import 'package:flutter/material.dart';
+import 'models/product.dart';
 import 'screens/splash/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
@@ -19,6 +21,7 @@ import 'screens/vendor/product_detail_screen.dart';
 import 'screens/vendor/product_form_screen.dart';
 import 'screens/vendor/vendor_dashboard_screen.dart';
 
+
 class AppRoutes {
   static const String splash = '/';
   static const String login = '/login';
@@ -35,6 +38,7 @@ class AppRoutes {
   static const String productList = '/vendor/products';
   static const String productDetail = '/vendor/product-detail';
   static const String productForm = '/vendor/product-form';
+  static const String clientProductDetail = '/product-detail';
   
   // Admin routes
   static const String adminDashboard = '/admin/dashboard';
@@ -78,6 +82,15 @@ class AppRoutes {
             product: args?['product'],
           ),
         );
+      case clientProductDetail:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final product = args?['product'] as Product?;
+        if (product != null) {
+          return MaterialPageRoute(
+            builder: (context) => DetailsScreen(product: product),
+          );
+        }
+        break;
       case productDetail:
         final args = settings.arguments as Map<String, dynamic>?;
         final productId = args?['productId'] as int?;
