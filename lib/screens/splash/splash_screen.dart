@@ -9,7 +9,9 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  final PageController _pageController = PageController();
+  // Controladores separados para móvil y escritorio
+  final PageController _mobilePageController = PageController();
+  final PageController _desktopPageController = PageController();
   int _currentPage = 0;
 
   final List<OnboardingPage> _pages = [
@@ -38,43 +40,58 @@ class _SplashScreenState extends State<SplashScreen> {
 
   @override
   void dispose() {
-    _pageController.dispose();
+    _mobilePageController.dispose();
+    _desktopPageController.dispose();
     super.dispose();
   }
 
   void _nextPage() {
     if (_currentPage < _pages.length - 1) {
-      // Usar animateToPage en lugar de nextPage para mayor control
-      _pageController.animateToPage(
-        _currentPage + 1,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-      
-      // Actualizar el estado para asegurar que la UI se actualice
+      // Actualizar el estado primero
       setState(() {
         _currentPage += 1;
       });
       
-      print("Navegando a la página ${_currentPage}");
+      // Actualizar ambos controladores
+      final isDesktop = MediaQuery.of(context).size.width >= 1024;
+      
+      if (isDesktop) {
+        // En escritorio, solo actualizamos el estado sin animación
+        print("Navegando a la página ${_currentPage} (escritorio)");
+      } else {
+        // En móvil, animamos el PageView
+        _mobilePageController.animateToPage(
+          _currentPage,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+        print("Navegando a la página ${_currentPage} (móvil)");
+      }
     }
   }
 
   void _previousPage() {
     if (_currentPage > 0) {
-      // Usar animateToPage en lugar de previousPage para mayor control
-      _pageController.animateToPage(
-        _currentPage - 1,
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-      
-      // Actualizar el estado para asegurar que la UI se actualice
+      // Actualizar el estado primero
       setState(() {
         _currentPage -= 1;
       });
       
-      print("Navegando a la página ${_currentPage}");
+      // Actualizar ambos controladores
+      final isDesktop = MediaQuery.of(context).size.width >= 1024;
+      
+      if (isDesktop) {
+        // En escritorio, solo actualizamos el estado sin animación
+        print("Navegando a la página ${_currentPage} (escritorio)");
+      } else {
+        // En móvil, animamos el PageView
+        _mobilePageController.animateToPage(
+          _currentPage,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+        print("Navegando a la página ${_currentPage} (móvil)");
+      }
     }
   }
 
@@ -125,14 +142,14 @@ class _SplashScreenState extends State<SplashScreen> {
           child: Stack(
             children: [
               PageView.builder(
-                controller: _pageController,
+                controller: _mobilePageController,
                 onPageChanged: (index) {
                   // Solo actualizar si el índice es diferente
                   if (_currentPage != index) {
                     setState(() {
                       _currentPage = index;
                     });
-                    print("Página cambiada a $index");
+                    print("Página cambiada a $index (móvil)");
                   }
                 },
                 physics: const BouncingScrollPhysics(),
@@ -368,21 +385,10 @@ class _SplashScreenState extends State<SplashScreen> {
                                   color: Theme.of(context).colorScheme.primary,
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: Row(
-                                  children: [
-                                    Text(
-                                      'Siguiente',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 8),
-                                    const Icon(
-                                      Icons.arrow_forward,
-                                      color: Colors.white,
-                                    ),
-                                  ],
+                                child: Icon(
+                                  Icons.arrow_forward,
+                                  color: Colors.white,
+                                  size: 24,
                                 ),
                               ),
                             ),

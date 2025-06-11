@@ -105,6 +105,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                 // TODO: Implementar cambio de tema
               },
             ),
+            // Botón de carrito
             IconButton(
               icon: Icon(
                 Icons.shopping_cart_outlined,
@@ -114,17 +115,115 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                 // TODO: Navegar al carrito
               },
             ),
-            IconButton(
-              icon: Icon(
-                Icons.logout,
-                color: Theme.of(context).colorScheme.onSurface,
+            // Menú de usuario
+            PopupMenuButton<String>(
+              offset: const Offset(0, 40),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
-              onPressed: () async {
-                await authProvider.logout();
-                if (context.mounted) {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (context) => const LoginScreen()),
+              icon: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+                    width: 2,
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(2.0),
+                  child: CircleAvatar(
+                    backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                    radius: 14,
+                    child: Text(
+                      user?.nombre?.isNotEmpty == true 
+                          ? user!.nombre![0].toUpperCase() 
+                          : "U",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              tooltip: "Opciones de usuario",
+              itemBuilder: (context) => [
+                // Información del usuario
+                PopupMenuItem(
+                  enabled: false,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        user?.nombre ?? "Usuario",
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        user?.email ?? "",
+                        style: TextStyle(
+                          color: Colors.grey[600],
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const PopupMenuDivider(),
+                
+                // Opción de perfil
+                PopupMenuItem<String>(
+                  value: 'profile',
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.person_outline,
+                        color: Theme.of(context).colorScheme.onSurface,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 12),
+                      const Text("Mi perfil"),
+                    ],
+                  ),
+                ),
+                
+                // Opción de cerrar sesión
+                PopupMenuItem<String>(
+                  value: 'logout',
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.logout,
+                        color: Theme.of(context).colorScheme.error,
+                        size: 20,
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        "Cerrar sesión",
+                        style: TextStyle(
+                          color: Theme.of(context).colorScheme.error,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              onSelected: (value) async {
+                if (value == 'profile') {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (context) => const ProfileScreen()),
                   );
+                } else if (value == 'logout') {
+                  await authProvider.logout();
+                  if (context.mounted) {
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(builder: (context) => const LoginScreen()),
+                    );
+                  }
                 }
               },
             ),
@@ -138,6 +237,8 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
   
   // AppBar personalizado para escritorio
   Widget _buildDesktopAppBar(BuildContext context, AuthProvider authProvider, bool isDarkMode) {
+    final user = authProvider.user;
+    
     return Container(
       height: 64,
       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -180,7 +281,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
           
           const SizedBox(width: 8),
           
-          // Botón de notificaciones
+          // Botón de carrito
           IconButton(
             icon: Icon(
               Icons.shopping_cart_outlined,
@@ -195,18 +296,115 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
           
           const SizedBox(width: 8),
           
-          // Perfil del usuario
-          IconButton(
-            icon: Icon(
-              Icons.person_outline,
-              color: Theme.of(context).colorScheme.onSurface,
-              size: 22,
+          // Menú de usuario con PopupMenuButton
+          PopupMenuButton<String>(
+            offset: const Offset(0, 40),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-            tooltip: "Perfil",
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (context) => const ProfileScreen()),
-              );
+            icon: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                border: Border.all(
+                  color: Theme.of(context).colorScheme.primary.withOpacity(0.5),
+                  width: 2,
+                ),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(2.0),
+                child: CircleAvatar(
+                  backgroundColor: Theme.of(context).colorScheme.primary.withOpacity(0.1),
+                  radius: 16,
+                  child: Text(
+                    user?.nombre?.isNotEmpty == true 
+                        ? user!.nombre![0].toUpperCase() 
+                        : "U",
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.primary,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            tooltip: "Opciones de usuario",
+            itemBuilder: (context) => [
+              // Información del usuario
+              PopupMenuItem(
+                enabled: false,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      user?.nombre ?? "Usuario",
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      user?.email ?? "",
+                      style: TextStyle(
+                        color: Colors.grey[600],
+                        fontSize: 14,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const PopupMenuDivider(),
+              
+              // Opción de perfil
+              PopupMenuItem<String>(
+                value: 'profile',
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.person_outline,
+                      color: Theme.of(context).colorScheme.onSurface,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 12),
+                    const Text("Mi perfil"),
+                  ],
+                ),
+              ),
+              
+              // Opción de cerrar sesión
+              PopupMenuItem<String>(
+                value: 'logout',
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.logout,
+                      color: Theme.of(context).colorScheme.error,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      "Cerrar sesión",
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.error,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+            onSelected: (value) async {
+              if (value == 'profile') {
+                Navigator.of(context).push(
+                  MaterialPageRoute(builder: (context) => const ProfileScreen()),
+                );
+              } else if (value == 'logout') {
+                await authProvider.logout();
+                if (context.mounted) {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (context) => const LoginScreen()),
+                  );
+                }
+              }
             },
           ),
         ],
@@ -216,36 +414,91 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
   
   // NavigationRail para escritorio
   Widget _buildNavigationRail(BuildContext context) {
-    return NavigationRail(
-      extended: MediaQuery.of(context).size.width >= 800,
-      destinations: const [
-        NavigationRailDestination(
-          icon: Icon(Icons.home_outlined),
-          selectedIcon: Icon(Icons.home),
-          label: Text('Inicio'),
+    final isExtended = MediaQuery.of(context).size.width >= 800;
+    
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surface,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 5,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: NavigationRail(
+        extended: isExtended,
+        minExtendedWidth: 200,
+        useIndicator: true,
+        indicatorColor: Theme.of(context).colorScheme.primaryContainer,
+        selectedIconTheme: IconThemeData(
+          color: Theme.of(context).colorScheme.primary,
         ),
-        NavigationRailDestination(
-          icon: Icon(Icons.category_outlined),
-          selectedIcon: Icon(Icons.category),
-          label: Text('Categorías'),
+        unselectedIconTheme: IconThemeData(
+          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
         ),
-        NavigationRailDestination(
-          icon: Icon(Icons.local_offer_outlined),
-          selectedIcon: Icon(Icons.local_offer),
-          label: Text('Ofertas'),
+        selectedLabelTextStyle: TextStyle(
+          color: Theme.of(context).colorScheme.primary,
+          fontWeight: FontWeight.bold,
         ),
-        NavigationRailDestination(
-          icon: Icon(Icons.favorite_outline),
-          selectedIcon: Icon(Icons.favorite),
-          label: Text('Favoritos'),
+        unselectedLabelTextStyle: TextStyle(
+          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.7),
         ),
-      ],
-      selectedIndex: _selectedIndex,
-      onDestinationSelected: (int index) {
-        setState(() {
-          _selectedIndex = index;
-        });
-      },
+        destinations: const [
+          NavigationRailDestination(
+            icon: Icon(Icons.home_outlined),
+            selectedIcon: Icon(Icons.home),
+            label: Text('Inicio'),
+          ),
+          NavigationRailDestination(
+            icon: Icon(Icons.category_outlined),
+            selectedIcon: Icon(Icons.category),
+            label: Text('Categorías'),
+          ),
+          NavigationRailDestination(
+            icon: Icon(Icons.local_offer_outlined),
+            selectedIcon: Icon(Icons.local_offer),
+            label: Text('Ofertas'),
+          ),
+          NavigationRailDestination(
+            icon: Icon(Icons.favorite_outline),
+            selectedIcon: Icon(Icons.favorite),
+            label: Text('Favoritos'),
+          ),
+        ],
+        selectedIndex: _selectedIndex,
+        onDestinationSelected: (int index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
+        // Agregar logo en la parte superior cuando está extendido
+        leading: isExtended
+            ? Padding(
+                padding: const EdgeInsets.symmetric(vertical: 16.0),
+                child: Column(
+                  children: [
+                    Image.asset(
+                      'assets/images/logo.png',
+                      height: 40,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Text(
+                          "EcoShopping",
+                          style: TextStyle(
+                            color: Theme.of(context).colorScheme.primary,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                          ),
+                        );
+                      },
+                    ),
+                    const SizedBox(height: 16),
+                  ],
+                ),
+              )
+            : null,
+      ),
     );
   }
 
