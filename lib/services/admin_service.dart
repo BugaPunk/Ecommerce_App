@@ -10,6 +10,45 @@ class AdminService {
   final http.Client _client = http.Client();
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
 
+  // Obtener lista de todos los usuarios
+  Future<List<User>> getAllUsers() async {
+    try {
+      final token = await _secureStorage.read(key: ApiConstants.tokenKey);
+
+      if (token == null) {
+        throw Exception('No authentication token found');
+      }
+
+      print('[DEBUG_LOG] Getting all users list');
+      print('[DEBUG_LOG] API URL: ${ApiConstants.baseUrl}/api/admin/usuarios');
+
+      final response = await _client.get(
+        Uri.parse('${ApiConstants.baseUrl}/api/admin/usuarios'),
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+
+      print('[DEBUG_LOG] Get all users response status code: ${response.statusCode}');
+      print('[DEBUG_LOG] Get all users response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final List<dynamic> usersJson = jsonDecode(response.body);
+        return usersJson.map((json) => User.fromJson(json)).toList();
+      } else if (response.statusCode == 401) {
+        throw Exception('Session expired. Please login again.');
+      } else if (response.statusCode == 403) {
+        throw Exception('You do not have permission to access this resource.');
+      } else {
+        throw Exception('Failed to get users: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('[DEBUG_LOG] Error getting all users: $e');
+      throw Exception('Error getting users: ${e.toString()}');
+    }
+  }
+
   // Obtener lista de vendedores
   Future<List<User>> getVendors() async {
     try {

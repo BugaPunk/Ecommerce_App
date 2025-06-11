@@ -201,7 +201,7 @@ class _BodyState extends State<Body> {
                             if (authProvider.user != null) {
                               // Si el usuario es admin o vendedor, mostrar la pantalla de administración
                               if (authProvider.user!.roles.contains('ROLE_ADMIN') || 
-                                  authProvider.user!.roles.contains('ROLE_VENDOR')) {
+                                  authProvider.user!.roles.contains('ROLE_VENDEDOR')) {
                                 Navigator.pushReplacement(
                                   context,
                                   MaterialPageRoute(builder: (context) => const HomeScreen()),
@@ -424,7 +424,7 @@ class _BodyState extends State<Body> {
                         if (authProvider.user != null) {
                           // Si el usuario es admin o vendedor, mostrar la pantalla de administración
                           if (authProvider.user!.roles.contains('ROLE_ADMIN') || 
-                              authProvider.user!.roles.contains('ROLE_VENDOR')) {
+                              authProvider.user!.roles.contains('ROLE_VENDEDOR')) {
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(builder: (context) => const HomeScreen()),

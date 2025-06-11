@@ -1,88 +1,167 @@
 class Store {
   final int id;
+  final String? codigoTienda;
   final String nombre;
   final String descripcion;
-  final String direccion;
-  final String telefono;
-  final String email;
-  final int usuarioId;
+  final String? direccion;
+  final String? telefono;
+  final String? email;
+  final int? usuarioId;
+  final double? calificacionPromedio;
+  final List<String>? categorias;
 
   Store({
     required this.id,
+    this.codigoTienda,
     required this.nombre,
     required this.descripcion,
-    required this.direccion,
-    required this.telefono,
-    required this.email,
-    required this.usuarioId,
+    this.direccion,
+    this.telefono,
+    this.email,
+    this.usuarioId,
+    this.calificacionPromedio,
+    this.categorias,
   });
 
   // Factory constructor to create a Store from API JSON
   factory Store.fromJson(Map<String, dynamic> json) {
     return Store(
-      id: json['id'],
-      nombre: json['nombre'],
-      descripcion: json['descripcion'],
+      id: json['id'] ?? 0,
+      codigoTienda: json['codigoTienda'],
+      nombre: json['nombre'] ?? '',
+      descripcion: json['descripcion'] ?? '',
       direccion: json['direccion'],
       telefono: json['telefono'],
       email: json['email'],
       usuarioId: json['usuarioId'],
+      calificacionPromedio: json['calificacionPromedio']?.toDouble(),
+      categorias: json['categorias'] != null 
+          ? List<String>.from(json['categorias'])
+          : null,
     );
   }
 
   // Convert Store to JSON for API requests
   Map<String, dynamic> toJson() {
-    return {
+    final Map<String, dynamic> data = {
       'id': id,
       'nombre': nombre,
       'descripcion': descripcion,
-      'direccion': direccion,
-      'telefono': telefono,
-      'email': email,
-      'usuarioId': usuarioId,
     };
+    
+    if (codigoTienda != null) data['codigoTienda'] = codigoTienda;
+    if (direccion != null) data['direccion'] = direccion;
+    if (telefono != null) data['telefono'] = telefono;
+    if (email != null) data['email'] = email;
+    if (usuarioId != null) data['usuarioId'] = usuarioId;
+    if (calificacionPromedio != null) data['calificacionPromedio'] = calificacionPromedio;
+    if (categorias != null) data['categorias'] = categorias;
+    
+    return data;
   }
 
   // Create a copy of this Store with the given fields replaced with new values
   Store copyWith({
     int? id,
+    String? codigoTienda,
     String? nombre,
     String? descripcion,
     String? direccion,
     String? telefono,
     String? email,
     int? usuarioId,
+    double? calificacionPromedio,
+    List<String>? categorias,
   }) {
     return Store(
       id: id ?? this.id,
+      codigoTienda: codigoTienda ?? this.codigoTienda,
       nombre: nombre ?? this.nombre,
       descripcion: descripcion ?? this.descripcion,
       direccion: direccion ?? this.direccion,
       telefono: telefono ?? this.telefono,
       email: email ?? this.email,
       usuarioId: usuarioId ?? this.usuarioId,
+      calificacionPromedio: calificacionPromedio ?? this.calificacionPromedio,
+      categorias: categorias ?? this.categorias,
     );
+  }
+
+  @override
+  String toString() {
+    return 'Store{id: $id, codigoTienda: $codigoTienda, nombre: $nombre}';
+  }
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Store &&
+          runtimeType == other.runtimeType &&
+          id == other.id;
+
+  @override
+  int get hashCode => id.hashCode;
+}
+
+// Clase para crear tienda (sin ID)
+class StoreRequest {
+  final String codigoTienda;
+  final String nombre;
+  final String descripcion;
+  final String? direccion;
+  final String? telefono;
+  final String? email;
+
+  StoreRequest({
+    required this.codigoTienda,
+    required this.nombre,
+    required this.descripcion,
+    this.direccion,
+    this.telefono,
+    this.email,
+  });
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = {
+      'codigoTienda': codigoTienda,
+      'nombre': nombre,
+      'descripcion': descripcion,
+    };
+    
+    if (direccion != null && direccion!.isNotEmpty) data['direccion'] = direccion;
+    if (telefono != null && telefono!.isNotEmpty) data['telefono'] = telefono;
+    if (email != null && email!.isNotEmpty) data['email'] = email;
+    
+    return data;
   }
 }
 
-// Lista de tiendas de demostración
-List<Store> demoStores = [
-  Store(
-    id: 1,
-    nombre: "Tienda Electrónica",
-    descripcion: "Tienda de productos electrónicos",
-    direccion: "Calle Principal 123",
-    telefono: "123-456-7890",
-    email: "tienda1@example.com",
-    usuarioId: 2,
-  ),
-  Store(
-    id: 2,
-    nombre: "Tienda de Moda",
-    descripcion: "Tienda de ropa y accesorios",
-    direccion: "Avenida Central 456",
-    telefono: "987-654-3210",
-    email: "tienda2@example.com",
-    usuarioId: 3,
-  ),
-];
+// Clase para actualizar tienda (sin codigoTienda)
+class StoreUpdateRequest {
+  final String nombre;
+  final String descripcion;
+  final String? direccion;
+  final String? telefono;
+  final String? email;
+
+  StoreUpdateRequest({
+    required this.nombre,
+    required this.descripcion,
+    this.direccion,
+    this.telefono,
+    this.email,
+  });
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = {
+      'nombre': nombre,
+      'descripcion': descripcion,
+    };
+    
+    if (direccion != null && direccion!.isNotEmpty) data['direccion'] = direccion;
+    if (telefono != null && telefono!.isNotEmpty) data['telefono'] = telefono;
+    if (email != null && email!.isNotEmpty) data['email'] = email;
+    
+    return data;
+  }
+}

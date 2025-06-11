@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../models/product.dart';
 import '../../services/product_service.dart';
+import '../../widgets/vendor_drawer.dart';
 import 'add_edit_product_screen.dart';
+import 'product_list_screen.dart';
 
 class VendorHomeScreen extends StatefulWidget {
   const VendorHomeScreen({Key? key}) : super(key: key);
@@ -88,11 +90,25 @@ class _VendorHomeScreenState extends State<VendorHomeScreen> {
         title: const Text('Mis Productos'),
         actions: [
           IconButton(
+            icon: const Icon(Icons.inventory_2),
+            tooltip: 'Gestión de Productos',
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const ProductListScreen(),
+                ),
+              ).then((_) {
+                _loadProducts(); // Recargar productos al volver
+              });
+            },
+          ),
+          IconButton(
             icon: const Icon(Icons.refresh),
             onPressed: _loadProducts,
           ),
         ],
       ),
+      drawer: const VendorDrawer(),
       floatingActionButton: FloatingActionButton(
         onPressed: () async {
           final result = await Navigator.push(

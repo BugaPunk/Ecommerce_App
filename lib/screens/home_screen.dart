@@ -5,6 +5,8 @@ import '../providers/auth_provider.dart';
 import '../utils/responsive_layout.dart';
 import 'login_screen.dart';
 import 'profile_screen.dart';
+import 'admin/admin_dashboard_screen.dart';
+import 'admin/user_list_screen.dart';
 import 'admin/vendor_list_screen.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -89,7 +91,47 @@ class HomeScreen extends StatelessWidget {
           ),
           ListTile(
             leading: Icon(
-              Icons.people,
+              Icons.dashboard,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+            title: Text(
+              'Panel de Administración',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            onTap: () {
+              Navigator.pop(context); // Cerrar el drawer
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const AdminDashboardScreen(),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.people_alt,
+              color: Theme.of(context).colorScheme.onSurface,
+            ),
+            title: Text(
+              'Gestión de Usuarios',
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurface,
+              ),
+            ),
+            onTap: () {
+              Navigator.pop(context); // Cerrar el drawer
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => const UserListScreen(),
+                ),
+              );
+            },
+          ),
+          ListTile(
+            leading: Icon(
+              Icons.store,
               color: Theme.of(context).colorScheme.onSurface,
             ),
             title: Text(
@@ -214,13 +256,41 @@ class HomeScreen extends StatelessWidget {
             const SizedBox(height: 24),
             
             // Accesos rápidos para móvil
-            if (user.roles.contains('ROLE_ADMIN'))
+            if (user.roles.contains('ROLE_ADMIN')) ...[
               _buildMobileActionCard(
                 context,
-                Icons.admin_panel_settings,
+                Icons.dashboard,
+                'Panel de Administración',
+                'Accede al panel principal de admin',
+                Colors.deepPurple,
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const AdminDashboardScreen(),
+                    ),
+                  );
+                },
+              ),
+              _buildMobileActionCard(
+                context,
+                Icons.people_alt,
+                'Gestión de Usuarios',
+                'Administra todos los usuarios del sistema',
+                Colors.blue,
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => const UserListScreen(),
+                    ),
+                  );
+                },
+              ),
+              _buildMobileActionCard(
+                context,
+                Icons.store,
                 'Gestión de Vendedores',
                 'Administra los usuarios vendedores',
-                Colors.deepPurple,
+                Colors.orange,
                 onTap: () {
                   Navigator.of(context).push(
                     MaterialPageRoute(
@@ -229,6 +299,60 @@ class HomeScreen extends StatelessWidget {
                   );
                 },
               ),
+            ],
+            
+            // Accesos rápidos para vendedores
+            if (user.roles.contains('ROLE_VENDEDOR')) ...[
+              Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.green.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.green, width: 2),
+                ),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.store,
+                      color: Colors.green.shade700,
+                      size: 48,
+                    ),
+                    const SizedBox(height: 12),
+                    Text(
+                      '¡Eres un Vendedor!',
+                      style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green.shade700,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Accede a tu dashboard para gestionar productos',
+                      style: TextStyle(
+                        fontSize: 14,
+                        color: Colors.green.shade600,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 16),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.of(context).pushReplacementNamed('/vendor/dashboard');
+                      },
+                      icon: const Icon(Icons.dashboard),
+                      label: const Text('Ir a Mi Dashboard'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
             
             _buildMobileActionCard(
               context,
@@ -344,12 +468,12 @@ class HomeScreen extends StatelessWidget {
                   onPressed: () {
                     Navigator.of(context).push(
                       MaterialPageRoute(
-                        builder: (context) => const VendorListScreen(),
+                        builder: (context) => const AdminDashboardScreen(),
                       ),
                     );
                   },
-                  icon: const Icon(Icons.admin_panel_settings),
-                  label: const Text('Gestión de Vendedores'),
+                  icon: const Icon(Icons.dashboard),
+                  label: const Text('Panel de Administración'),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.secondary,
                     foregroundColor: Theme.of(context).colorScheme.onSecondary,
@@ -357,7 +481,98 @@ class HomeScreen extends StatelessWidget {
                     minimumSize: const Size(double.infinity, 50),
                   ),
                 ),
+                const SizedBox(height: 12),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const UserListScreen(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.people_alt),
+                  label: const Text('Gestión de Usuarios'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blue,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                    minimumSize: const Size(double.infinity, 50),
+                  ),
+                ),
+                const SizedBox(height: 12),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => const VendorListScreen(),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.store),
+                  label: const Text('Gestión de Vendedores'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                    minimumSize: const Size(double.infinity, 50),
+                  ),
+                ),
               ],
+              
+              // Sección para vendedores en escritorio
+              if (user.roles.contains('ROLE_VENDEDOR')) ...[
+                const SizedBox(height: 24),
+                Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: Colors.green.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: Colors.green, width: 2),
+                  ),
+                  child: Column(
+                    children: [
+                      Icon(
+                        Icons.store,
+                        color: Colors.green.shade700,
+                        size: 48,
+                      ),
+                      const SizedBox(height: 12),
+                      Text(
+                        '¡Eres un Vendedor!',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.green.shade700,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Gestiona tu tienda y productos',
+                        style: TextStyle(
+                          fontSize: 14,
+                          color: Colors.green.shade600,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 16),
+                      ElevatedButton.icon(
+                        onPressed: () {
+                          Navigator.of(context).pushReplacementNamed('/vendor/dashboard');
+                        },
+                        icon: const Icon(Icons.dashboard),
+                        label: const Text('Ir a Mi Dashboard'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.green,
+                          foregroundColor: Colors.white,
+                          padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 24),
+                          minimumSize: const Size(double.infinity, 50),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+              
               const Spacer(),
               ElevatedButton.icon(
                 onPressed: () async {

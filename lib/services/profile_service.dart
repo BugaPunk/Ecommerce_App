@@ -20,9 +20,6 @@ class ProfileService {
         throw Exception('No authentication token found');
       }
 
-      print('[DEBUG_LOG] Getting user profile');
-      print('[DEBUG_LOG] API URL: ${ApiConstants.baseUrl + ApiConstants.profileEndpoint}');
-
       final response = await _client.get(
         Uri.parse(ApiConstants.baseUrl + ApiConstants.profileEndpoint),
         headers: {
@@ -30,9 +27,6 @@ class ProfileService {
           'Authorization': 'Bearer $token',
         },
       );
-
-      print('[DEBUG_LOG] Get profile response status code: ${response.statusCode}');
-      print('[DEBUG_LOG] Get profile response body: ${response.body}');
 
       if (response.statusCode == 200) {
         return UserProfileResponse.fromJson(jsonDecode(response.body));
@@ -44,7 +38,6 @@ class ProfileService {
         throw Exception('Failed to get profile: ${response.statusCode}');
       }
     } catch (e) {
-      print('[DEBUG_LOG] Error getting user profile: $e');
       throw Exception('Profile error: ${e.toString()}');
     }
   }

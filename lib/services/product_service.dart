@@ -17,7 +17,6 @@ class ProductService {
     String direction = "asc",
   }) async {
     try {
-      print('[DEBUG_LOG] Getting products (paginated)');
       final url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.productsEndpoint}')
           .replace(queryParameters: {
         'page': page.toString(),
@@ -25,15 +24,11 @@ class ProductService {
         'sort': sort,
         'direction': direction,
       });
-      print('[DEBUG_LOG] API URL: $url');
 
       final response = await _client.get(
         url,
         headers: {'Content-Type': 'application/json'},
       );
-
-      print('[DEBUG_LOG] Get products response status code: ${response.statusCode}');
-      print('[DEBUG_LOG] Get products response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final Map<String, dynamic> data = jsonDecode(response.body);
@@ -45,7 +40,6 @@ class ProductService {
         throw Exception('Failed to get products: ${response.statusCode}');
       }
     } catch (e) {
-      print('[DEBUG_LOG] Error getting products: $e');
       throw Exception('Error getting products: ${e.toString()}');
     }
   }
@@ -53,9 +47,7 @@ class ProductService {
   // Obtener todos los productos (sin paginación)
   Future<List<Product>> getAllProducts() async {
     try {
-      print('[DEBUG_LOG] Getting all products (without pagination)');
       final url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.productsEndpoint}/all');
-      print('[DEBUG_LOG] API URL: $url');
 
       final response = await _client.get(
         url,
@@ -238,12 +230,8 @@ class ProductService {
         throw Exception('No authentication token found');
       }
 
-      print('[DEBUG_LOG] Creating product');
       final url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.productsEndpoint}');
-      print('[DEBUG_LOG] API URL: $url');
-
       final requestBody = jsonEncode(product.toJson());
-      print('[DEBUG_LOG] Request body: $requestBody');
 
       final response = await _client.post(
         url,
@@ -254,10 +242,7 @@ class ProductService {
         body: requestBody,
       );
 
-      print('[DEBUG_LOG] Create product response status code: ${response.statusCode}');
-      print('[DEBUG_LOG] Create product response body: ${response.body}');
-
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 || response.statusCode == 201) {
         return Product.fromJson(jsonDecode(response.body));
       } else if (response.statusCode == 401) {
         throw Exception('Session expired. Please login again.');
@@ -267,7 +252,6 @@ class ProductService {
         throw Exception('Failed to create product: ${response.statusCode}');
       }
     } catch (e) {
-      print('[DEBUG_LOG] Error creating product: $e');
       throw Exception('Error creating product: ${e.toString()}');
     }
   }
@@ -323,9 +307,7 @@ class ProductService {
         throw Exception('No authentication token found');
       }
 
-      print('[DEBUG_LOG] Deleting product with ID: $id');
       final url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.productsEndpoint}/$id');
-      print('[DEBUG_LOG] API URL: $url');
 
       final response = await _client.delete(
         url,
@@ -335,9 +317,7 @@ class ProductService {
         },
       );
 
-      print('[DEBUG_LOG] Delete product response status code: ${response.statusCode}');
-
-      if (response.statusCode == 204) {
+      if (response.statusCode == 204 || response.statusCode == 200) {
         return;
       } else if (response.statusCode == 401) {
         throw Exception('No autorizado para eliminar productos');
@@ -349,8 +329,34 @@ class ProductService {
         throw Exception('Error al eliminar el producto: ${response.statusCode}');
       }
     } catch (e) {
-      print('[DEBUG_LOG] Error deleting product: $e');
       throw Exception('Error al eliminar el producto: ${e.toString()}');
+    }
+  }
+
+  // Obtener todas las categorías
+  Future<List<Map<String, dynamic>>> getCategories() async {
+    try {
+      print('[DEBUG_LOG] Getting categories');
+      final url = Uri.parse('${ApiConstants.baseUrl}/api/categorias');
+      print('[DEBUG_LOG] Categories API URL: $url');
+
+      final response = await _client.get(
+        url,
+        headers: {'Content-Type': 'application/json'},
+      );
+
+      print('[DEBUG_LOG] Get categories response status code: ${response.statusCode}');
+      print('[DEBUG_LOG] Get categories response body: ${response.body}');
+
+      if (response.statusCode == 200) {
+        final List<dynamic> categoriesJson = jsonDecode(response.body);
+        return categoriesJson.cast<Map<String, dynamic>>();
+      } else {
+        throw Exception('Failed to get categories: ${response.statusCode}');
+      }
+    } catch (e) {
+      print('[DEBUG_LOG] Error getting categories: $e');
+      throw Exception('Error getting categories: ${e.toString()}');
     }
   }
 

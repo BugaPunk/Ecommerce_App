@@ -1,0 +1,40 @@
+# Comandos para crear categorías - Ejecutar uno por uno
+
+# 1. Login (reemplaza TU_USUARIO y TU_PASSWORD)
+curl -X POST "https://ecommerce-springboot-backend-xen4.onrender.com/api/auth/login" \
+  -H "Content-Type: application/json" \
+  -d '{"username":"TU_USUARIO","password":"TU_PASSWORD"}'
+
+# 2. Crear categoría Electrónicos (reemplaza TU_TOKEN)
+curl -X POST "https://ecommerce-springboot-backend-xen4.onrender.com/api/categorias" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer TU_TOKEN" \
+  -d '{"nombre":"Electrónicos","descripcion":"Productos electrónicos y tecnología","tiendaId":1}'
+
+# 3. Crear categoría Moda
+curl -X POST "https://ecommerce-springboot-backend-xen4.onrender.com/api/categorias" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer TU_TOKEN" \
+  -d '{"nombre":"Moda","descripcion":"Ropa y accesorios de moda","tiendaId":1}'
+
+# 4. Crear categoría Hogar
+curl -X POST "https://ecommerce-springboot-backend-xen4.onrender.com/api/categorias" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer TU_TOKEN" \
+  -d '{"nombre":"Hogar","descripcion":"Artículos para el hogar y decoración","tiendaId":1}'
+
+# 5. Crear categoría Deportes
+curl -X POST "https://ecommerce-springboot-backend-xen4.onrender.com/api/categorias" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer TU_TOKEN" \
+  -d '{"nombre":"Deportes","descripcion":"Artículos deportivos y fitness","tiendaId":1}'
+
+# 6. Crear categoría Libros
+curl -X POST "https://ecommerce-springboot-backend-xen4.onrender.com/api/categorias" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer TU_TOKEN" \
+  -d '{"nombre":"Libros","descripcion":"Libros y literatura","tiendaId":1}'
+
+# 7. Verificar categorías creadas
+curl -X GET "https://ecommerce-springboot-backend-xen4.onrender.com/api/categorias" \
+  -H "Content-Type: application/json"

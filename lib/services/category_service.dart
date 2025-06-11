@@ -15,17 +15,12 @@ class CategoryService {
   // Obtener todas las categorías
   Future<List<Category>> getAllCategories() async {
     try {
-      print('[DEBUG_LOG] Getting all categories');
       final url = Uri.parse('${ApiConstants.baseUrl}${ApiConstants.categoriesEndpoint}');
-      print('[DEBUG_LOG] API URL: $url');
 
       final response = await _client.get(
         url,
         headers: {'Content-Type': 'application/json'},
       );
-
-      print('[DEBUG_LOG] Get all categories response status code: ${response.statusCode}');
-      print('[DEBUG_LOG] Get all categories response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final List<dynamic> categoriesJson = jsonDecode(response.body);
@@ -34,7 +29,6 @@ class CategoryService {
         throw Exception('Failed to get all categories: ${response.statusCode}');
       }
     } catch (e) {
-      print('[DEBUG_LOG] Error getting all categories: $e');
       throw Exception('Error getting all categories: ${e.toString()}');
     }
   }

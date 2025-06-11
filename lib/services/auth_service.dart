@@ -86,21 +86,13 @@ class AuthService {
         throw Exception('No hay conexión a internet. Por favor, verifica tu conexión y vuelve a intentarlo.');
       }
 
-      print('[DEBUG_LOG] Attempting login for user: ${request.username}');
-      print('[DEBUG_LOG] API URL: ${ApiConstants.baseUrl + ApiConstants.loginEndpoint}');
-
       final requestBody = jsonEncode(request.toJson());
-      print('[DEBUG_LOG] Request body: $requestBody');
 
       final response = await _client.post(
         Uri.parse(ApiConstants.baseUrl + ApiConstants.loginEndpoint),
         headers: {'Content-Type': 'application/json'},
         body: requestBody,
       );
-
-      print('[DEBUG_LOG] Login response status code: ${response.statusCode}');
-      print('[DEBUG_LOG] Login response headers: ${response.headers}');
-      print('[DEBUG_LOG] Login response body: ${response.body}');
 
       if (response.statusCode == 200) {
         final authResponse = AuthResponse.fromJson(jsonDecode(response.body));

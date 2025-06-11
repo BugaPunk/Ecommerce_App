@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../models/user.dart';
 import '../../providers/admin_provider.dart';
 import '../../utils/responsive_layout.dart';
+import '../../widgets/admin_drawer.dart';
 import 'vendor_detail_screen.dart';
 import 'vendor_form_screen.dart';
 
@@ -70,6 +71,7 @@ class _VendorListScreenState extends State<VendorListScreen> {
         title: const Text('Gestión de Vendedores'),
         backgroundColor: Theme.of(context).colorScheme.primaryContainer,
       ),
+      drawer: const AdminDrawer(),
       body: ResponsiveLayout.builder(
         context: context,
         mobile: _buildMobileLayout(context),

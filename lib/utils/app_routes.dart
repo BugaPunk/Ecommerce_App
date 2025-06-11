@@ -12,4 +12,6 @@ class AppRoutes {
   static const String payment = '/payment';
   static const String invoice = '/invoice';
   static const String vendorHome = '/vendor/home';
+  static const String vendorDashboard = '/vendor/dashboard';
+  static const String adminDashboard = '/admin/dashboard';
 } 

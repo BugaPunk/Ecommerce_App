@@ -235,9 +235,9 @@ class AuthProvider with ChangeNotifier {
     }
 
     if (_user!.roles.contains('ROLE_ADMIN')) {
-      return AppRoutes.home;
-    } else if (_user!.roles.contains('ROLE_VENDOR')) {
-      return AppRoutes.vendorHome;
+      return AppRoutes.adminDashboard;
+    } else if (_user!.roles.contains('ROLE_VENDEDOR')) {
+      return AppRoutes.vendorDashboard;
     } else {
       return AppRoutes.home;
     }
@@ -252,7 +252,7 @@ class AuthProvider with ChangeNotifier {
   bool get isAdmin => hasRole('ROLE_ADMIN');
 
   // Método para verificar si el usuario es vendedor
-  bool get isVendor => hasRole('ROLE_VENDOR');
+  bool get isVendor => hasRole('ROLE_VENDEDOR');
 
   // Método para verificar si el usuario es cliente
   bool get isClient => !isAdmin && !isVendor;

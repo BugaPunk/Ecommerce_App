@@ -4,6 +4,7 @@ import '../../models/product.dart';
 import '../../models/category.dart';
 import '../../services/product_service.dart';
 import '../../services/category_service.dart';
+import '../../widgets/vendor_drawer.dart';
 
 class AddEditProductScreen extends StatefulWidget {
   final Product? product;
@@ -113,6 +114,7 @@ class _AddEditProductScreenState extends State<AddEditProductScreen> {
       appBar: AppBar(
         title: Text(widget.product == null ? 'Agregar Producto' : 'Editar Producto'),
       ),
+      drawer: const VendorDrawer(),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SingleChildScrollView(

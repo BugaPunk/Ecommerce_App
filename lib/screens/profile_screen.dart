@@ -246,6 +246,49 @@ class _ProfileScreenState extends State<ProfileScreen> {
               label: Text(user.roles.join(", ")),
               backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
             ),
+            
+            // Botón especial para vendedores
+            if (user.roles.contains('ROLE_VENDEDOR')) ...[
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.green.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.green),
+                ),
+                child: Column(
+                  children: [
+                    Icon(
+                      Icons.store,
+                      color: Colors.green.shade700,
+                      size: 32,
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      '¡Eres un Vendedor!',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.green.shade700,
+                        fontSize: 16,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.of(context).pushReplacementNamed('/vendor/dashboard');
+                      },
+                      icon: const Icon(Icons.dashboard),
+                      label: const Text('Ir a Mi Dashboard'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ],
         ),
       ),

@@ -78,6 +78,18 @@ class Product {
     };
   }
 
+  // Convert Product to JSON for creating new products (without id and fechaRegistro)
+  Map<String, dynamic> toCreateJson() {
+    return {
+      'nombre': nombre,
+      'descripcion': descripcion,
+      'precio': precio,
+      'stock': stock,
+      'estado': estado,
+      'categoriaId': categoriaId,
+    };
+  }
+
   // Create a copy of this Product with the given fields replaced with new values
   Product copyWith({
     int? id,
@@ -241,3 +253,41 @@ List<Product> demoProducts = [
 
 // Productos populares
 List<Product> popularProducts = demoProducts.where((product) => product.isPopular).toList();
+
+// Clase para manejar respuestas paginadas de productos
+class ProductPage {
+  final List<Product> content;
+  final int totalElements;
+  final int totalPages;
+  final int number;
+  final int size;
+  final bool first;
+  final bool last;
+  final bool empty;
+
+  ProductPage({
+    required this.content,
+    required this.totalElements,
+    required this.totalPages,
+    required this.number,
+    required this.size,
+    required this.first,
+    required this.last,
+    required this.empty,
+  });
+
+  factory ProductPage.fromJson(Map<String, dynamic> json) {
+    return ProductPage(
+      content: (json['content'] as List<dynamic>?)
+          ?.map((item) => Product.fromJson(item as Map<String, dynamic>))
+          .toList() ?? [],
+      totalElements: json['totalElements'] ?? 0,
+      totalPages: json['totalPages'] ?? 0,
+      number: json['number'] ?? 0,
+      size: json['size'] ?? 0,
+      first: json['first'] ?? true,
+      last: json['last'] ?? true,
+      empty: json['empty'] ?? true,
+    );
+  }
+}
