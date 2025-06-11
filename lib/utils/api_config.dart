@@ -1,3 +1,3 @@
 class ApiConfig {
-  static const String baseUrl = 'https://ecommerce-api-4j8p.onrender.com';
+  static const String baseUrl = 'https://ecommerce-springboot-backend-xen4.onrender.com';
 } 

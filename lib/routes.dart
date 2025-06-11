@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'screens/splash/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
 import 'screens/profile_screen.dart';
 import 'screens/change_password_screen.dart';
 import 'screens/home/home_screen.dart';
+import 'screens/home/components/categories_screen.dart';
 import 'screens/vendor/vendor_home_screen.dart';
 import 'screens/vendor/add_edit_product_screen.dart';
 import 'screens/admin/admin_dashboard_screen.dart';
@@ -24,6 +26,7 @@ class AppRoutes {
   static const String profile = '/profile';
   static const String changePassword = '/change-password';
   static const String home = '/home';
+  static const String categories = '/categories';
   static const String vendorHome = '/vendor/home';
   static const String vendorDashboard = '/vendor/dashboard';
   static const String addEditProduct = '/vendor/product';
@@ -43,11 +46,13 @@ class AppRoutes {
 
   static Map<String, WidgetBuilder> getRoutes() {
     return {
+      splash: (context) => const SplashScreen(),
       login: (context) => const LoginScreen(),
       register: (context) => const RegisterScreen(),
       profile: (context) => const ProfileScreen(),
       changePassword: (context) => const ChangePasswordScreen(),
       home: (context) => const ClientHomeScreen(),
+      categories: (context) => const CategoriesScreen(),
       vendorHome: (context) => const VendorHomeScreen(),
       vendorDashboard: (context) => const VendorDashboardScreen(),
       addEditProduct: (context) => const AddEditProductScreen(),

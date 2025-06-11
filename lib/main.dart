@@ -7,9 +7,6 @@ import 'providers/auth_provider.dart';
 import 'providers/admin_provider.dart';
 import 'providers/product_provider.dart';
 import 'providers/store_provider.dart';
-import 'screens/login_screen.dart';
-import 'screens/home/home_screen.dart';
-import 'screens/splash/splash_screen.dart';
 import 'routes.dart';
 
 void main() {
@@ -127,7 +124,7 @@ class MyApp extends StatelessWidget {
             ),
           ),
           themeMode: ThemeMode.system,
-          home: const SplashScreen(),
+          initialRoute: AppRoutes.splash,
           routes: AppRoutes.getRoutes(),
           onGenerateRoute: AppRoutes.generateRoute,
         );

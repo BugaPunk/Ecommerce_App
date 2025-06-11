@@ -21,7 +21,7 @@ class Categories extends StatelessWidget {
           child: SectionTitle(
             title: "Categorías",
             press: () {
-              // TODO: Navegar a la lista de categorías
+              Navigator.pushNamed(context, '/categories');
             },
           ),
         ),

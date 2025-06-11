@@ -138,6 +138,47 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
+  // Check authentication status (for splash screen)
+  Future<void> checkAuthStatus() async {
+    _setLoading(true);
+    _errorMessage = null;
+
+    try {
+      final isLoggedIn = await _authService.isLoggedIn();
+      
+      if (isLoggedIn) {
+        // Get user from storage
+        _user = await _authService.getCurrentUser();
+        _token = await _authService.getToken();
+        
+        if (_user != null && _token != null) {
+          // Verify session with the server
+          final serverUser = await _authService.getSessionInfo();
+          
+          if (serverUser != null) {
+            _user = serverUser;
+            _status = AuthStatus.authenticated;
+          } else {
+            // Session invalid, clear data
+            await _authService.logout();
+            _status = AuthStatus.unauthenticated;
+            _user = null;
+            _token = null;
+          }
+        } else {
+          _status = AuthStatus.unauthenticated;
+        }
+      } else {
+        _status = AuthStatus.unauthenticated;
+      }
+    } catch (e) {
+      _status = AuthStatus.unauthenticated;
+      _errorMessage = e.toString();
+    } finally {
+      _setLoading(false);
+    }
+  }
+
   // Logout user
   Future<void> logout() async {
     _setLoading(true);

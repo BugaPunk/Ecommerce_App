@@ -7,6 +7,7 @@ import '../../utils/size_config.dart';
 import '../login_screen.dart';
 import '../profile_screen.dart';
 import 'components/body.dart';
+import 'components/categories_screen.dart';
 
 class ClientHomeScreen extends StatefulWidget {
   static String routeName = "/client_home";
@@ -59,7 +60,9 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
                     _buildDesktopAppBar(context, authProvider, isDarkMode),
                     
                     // Contenido principal
-                    const Expanded(child: Body()),
+                    Expanded(
+                      child: _getSelectedScreen(),
+                    ),
                   ],
                 ),
               ),
@@ -127,7 +130,7 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
             ),
           ],
         ),
-        body: const Body(),
+        body: _getSelectedScreen(),
         bottomNavigationBar: _buildBottomNavigationBar(context),
       );
     }
@@ -293,6 +296,24 @@ class _ClientHomeScreenState extends State<ClientHomeScreen> {
         return 'Favoritos';
       default:
         return 'EcoShopping';
+    }
+  }
+  
+  // Obtener la pantalla seleccionada
+  Widget _getSelectedScreen() {
+    switch (_selectedIndex) {
+      case 0:
+        return const Body();
+      case 1:
+        return const CategoriesScreen();
+      case 2:
+        // TODO: Implementar pantalla de ofertas
+        return const Center(child: Text('Próximamente: Ofertas'));
+      case 3:
+        // TODO: Implementar pantalla de favoritos
+        return const Center(child: Text('Próximamente: Favoritos'));
+      default:
+        return const Body();
     }
   }
 }

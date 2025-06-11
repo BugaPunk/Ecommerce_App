@@ -13,11 +13,33 @@ class Category {
 
   // Factory constructor to create a Category from API JSON
   factory Category.fromJson(Map<String, dynamic> json) {
+    // Función para convertir valores a enteros de forma segura
+    int safeParseInt(dynamic value) {
+      if (value == null) return 0;
+      if (value is int) return value;
+      if (value is String) {
+        try {
+          return int.parse(value);
+        } catch (e) {
+          print('[DEBUG_LOG] Error parsing int: $e');
+          return 0;
+        }
+      }
+      return 0;
+    }
+    
+    // Función para convertir valores a strings de forma segura
+    String safeParseString(dynamic value) {
+      if (value == null) return '';
+      if (value is String) return value;
+      return value.toString();
+    }
+    
     return Category(
-      id: json['id'],
-      nombre: json['nombre'],
-      descripcion: json['descripcion'],
-      tiendaId: json['tiendaId'],
+      id: safeParseInt(json['id']),
+      nombre: safeParseString(json['nombre']),
+      descripcion: safeParseString(json['descripcion']),
+      tiendaId: safeParseInt(json['tiendaId']),
     );
   }
 
