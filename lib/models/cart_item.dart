@@ -1,57 +1,59 @@
 class CartItem {
   final int id;
-  final int productoId;
-  final String nombreProducto;
-  final int cantidad;
-  final double precioUnitario;
+  final int productId;
+  final String name;
+  final double price;
+  int quantity;
+  final String imageUrl;
 
   CartItem({
     required this.id,
-    required this.productoId,
-    required this.nombreProducto,
-    required this.cantidad,
-    required this.precioUnitario,
+    required this.productId,
+    required this.name,
+    required this.price,
+    required this.quantity,
+    required this.imageUrl,
   });
 
-  // Factory constructor to create a CartItem from API JSON
-  factory CartItem.fromJson(Map<String, dynamic> json) {
-    return CartItem(
-      id: json['id'],
-      productoId: json['productoId'],
-      nombreProducto: json['nombreProducto'],
-      cantidad: json['cantidad'],
-      precioUnitario: json['precioUnitario'].toDouble(),
-    );
-  }
+  double get total => price * quantity;
 
-  // Convert CartItem to JSON for API requests
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'productoId': productoId,
-      'nombreProducto': nombreProducto,
-      'cantidad': cantidad,
-      'precioUnitario': precioUnitario,
+      'productId': productId,
+      'name': name,
+      'price': price,
+      'quantity': quantity,
+      'imageUrl': imageUrl,
     };
   }
 
-  // Calculate the total price for this item
-  double get total => cantidad * precioUnitario;
+  factory CartItem.fromJson(Map<String, dynamic> json) {
+    return CartItem(
+      id: json['id'],
+      productId: json['productId'],
+      name: json['name'],
+      price: json['price'].toDouble(),
+      quantity: json['quantity'],
+      imageUrl: json['imageUrl'],
+    );
+  }
 
-  // Create a copy of this CartItem with the given fields replaced with new values
   CartItem copyWith({
     int? id,
-    int? productoId,
-    String? nombreProducto,
-    int? cantidad,
-    double? precioUnitario,
+    int? productId,
+    String? name,
+    double? price,
+    int? quantity,
+    String? imageUrl,
   }) {
     return CartItem(
       id: id ?? this.id,
-      productoId: productoId ?? this.productoId,
-      nombreProducto: nombreProducto ?? this.nombreProducto,
-      cantidad: cantidad ?? this.cantidad,
-      precioUnitario: precioUnitario ?? this.precioUnitario,
+      productId: productId ?? this.productId,
+      name: name ?? this.name,
+      price: price ?? this.price,
+      quantity: quantity ?? this.quantity,
+      imageUrl: imageUrl ?? this.imageUrl,
     );
   }
 }

@@ -21,6 +21,8 @@ import 'screens/vendor/product_detail_screen.dart';
 import 'screens/vendor/product_form_screen.dart';
 import 'screens/vendor/vendor_dashboard_screen.dart';
 import 'screens/cart/cart_screen.dart';
+import 'screens/checkout/checkout_screen.dart';
+import 'screens/checkout/payment_success_screen.dart';
 
 
 class AppRoutes {
@@ -32,6 +34,7 @@ class AppRoutes {
   static const String home = '/home';
   static const String categories = '/categories';
   static const String cart = '/cart';
+  static const String checkout = '/checkout';
   static const String vendorHome = '/vendor/home';
   static const String vendorDashboard = '/vendor/dashboard';
   static const String addEditProduct = '/vendor/product';
@@ -60,6 +63,7 @@ class AppRoutes {
       home: (context) => const ClientHomeScreen(),
       categories: (context) => const CategoriesScreen(),
       cart: (context) => const CartScreen(),
+      checkout: (context) => const CheckoutScreen(),
       vendorHome: (context) => const VendorHomeScreen(),
       vendorDashboard: (context) => const VendorDashboardScreen(),
       addEditProduct: (context) => const AddEditProductScreen(),

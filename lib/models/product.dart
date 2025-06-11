@@ -8,6 +8,8 @@ class Product {
   final String fechaRegistro;
   final int categoriaId;
   final List<String> imagenes;
+  final double? descuento;
+  final String? imagenUrl;
 
   // UI-specific properties
   final List<String> images;
@@ -25,6 +27,8 @@ class Product {
     required this.fechaRegistro,
     required this.categoriaId,
     this.imagenes = const [],
+    this.descuento,
+    this.imagenUrl,
     this.images = const [],
     this.rating = 0.0,
     this.isFavourite = false,
@@ -60,6 +64,8 @@ class Product {
       fechaRegistro: json['fechaRegistro'],
       categoriaId: json['categoriaId'],
       imagenes: List<String>.from(json['imagenes'] ?? []),
+      descuento: json['descuento']?.toDouble(),
+      imagenUrl: json['imagenUrl'] ?? (json['imagenes'] != null && (json['imagenes'] as List).isNotEmpty ? (json['imagenes'] as List).first : null),
     );
   }
 
@@ -75,6 +81,8 @@ class Product {
       'fechaRegistro': fechaRegistro,
       'categoriaId': categoriaId,
       'imagenes': imagenes,
+      'descuento': descuento,
+      'imagenUrl': imagenUrl,
     };
   }
 
@@ -101,6 +109,8 @@ class Product {
     String? fechaRegistro,
     int? categoriaId,
     List<String>? imagenes,
+    double? descuento,
+    String? imagenUrl,
     List<String>? images,
     double? rating,
     bool? isFavourite,
@@ -116,6 +126,8 @@ class Product {
       fechaRegistro: fechaRegistro ?? this.fechaRegistro,
       categoriaId: categoriaId ?? this.categoriaId,
       imagenes: imagenes ?? this.imagenes,
+      descuento: descuento ?? this.descuento,
+      imagenUrl: imagenUrl ?? this.imagenUrl,
       images: images ?? this.images,
       rating: rating ?? this.rating,
       isFavourite: isFavourite ?? this.isFavourite,

@@ -44,7 +44,7 @@ class Order {
   }
 
   // Get the total number of items in the order
-  int get itemCount => items.fold(0, (sum, item) => sum + item.cantidad);
+  int get itemCount => items.fold(0, (sum, item) => sum + item.quantity);
 
   // Create a copy of this Order with the given fields replaced with new values
   Order copyWith({
@@ -76,17 +76,19 @@ Order demoOrder = Order(
   items: [
     CartItem(
       id: 1,
-      productoId: 1,
-      nombreProducto: "Samsung Galaxy S21",
-      cantidad: 2,
-      precioUnitario: 799.99,
+      productId: 1,
+      name: "Samsung Galaxy S21",
+      quantity: 2,
+      price: 799.99,
+      imageUrl: 'assets/images/products/smartphone.jpg',
     ),
     CartItem(
       id: 2,
-      productoId: 3,
-      nombreProducto: "Apple Watch Series 7",
-      cantidad: 1,
-      precioUnitario: 399.99,
+      productId: 3,
+      name: "Apple Watch Series 7",
+      quantity: 1,
+      price: 399.99,
+      imageUrl: 'assets/images/products/watch.jpg',
     ),
   ],
 );

@@ -3,9 +3,11 @@ import 'package:flutter/foundation.dart';
 import '../models/product.dart';
 import '../models/category.dart' as cat;
 import '../services/product_service.dart';
+import '../services/api_service.dart';
 
 class ProductProvider with ChangeNotifier {
   final ProductService _productService = ProductService();
+  final ApiService _apiService = ApiService();
 
   // Estado de carga
   bool _loading = false;
@@ -79,6 +81,32 @@ class ProductProvider with ChangeNotifier {
       notifyListeners();
     } catch (e) {
       _setError('Error al cargar productos: ${e.toString()}');
+    } finally {
+      _setLoading(false);
+    }
+  }
+  
+  // Método para obtener productos (para la pantalla de productos)
+  Future<void> fetchProducts() async {
+    try {
+      _setLoading(true);
+      _clearError();
+      
+      // Obtener productos de la API real
+      final response = await _apiService.get('/api/productos/all');
+      if (response != null) {
+        _products = (response as List).map((item) => Product.fromJson(item)).toList();
+      } else {
+        // Fallback a productos de demostración si la API no devuelve datos
+        _products = demoProducts;
+      }
+      
+      notifyListeners();
+    } catch (e) {
+      _setError('Error al cargar productos: ${e.toString()}');
+      // Fallback a productos de demostración en caso de error
+      _products = demoProducts;
+      notifyListeners();
     } finally {
       _setLoading(false);
     }

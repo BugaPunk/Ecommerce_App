@@ -118,7 +118,7 @@ class ProductCard extends StatelessWidget {
                 InkWell(
                   borderRadius: BorderRadius.circular(50),
                   onTap: () {
-                    context.read<CartProvider>().addItem(product.id);
+                    context.read<CartProvider>().addToCart(product);
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text('Producto agregado al carrito'),
