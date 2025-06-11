@@ -44,19 +44,37 @@ class _SplashScreenState extends State<SplashScreen> {
 
   void _nextPage() {
     if (_currentPage < _pages.length - 1) {
-      _pageController.nextPage(
+      // Usar animateToPage en lugar de nextPage para mayor control
+      _pageController.animateToPage(
+        _currentPage + 1,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
+      
+      // Actualizar el estado para asegurar que la UI se actualice
+      setState(() {
+        _currentPage += 1;
+      });
+      
+      print("Navegando a la página ${_currentPage}");
     }
   }
 
   void _previousPage() {
     if (_currentPage > 0) {
-      _pageController.previousPage(
+      // Usar animateToPage en lugar de previousPage para mayor control
+      _pageController.animateToPage(
+        _currentPage - 1,
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOut,
       );
+      
+      // Actualizar el estado para asegurar que la UI se actualice
+      setState(() {
+        _currentPage -= 1;
+      });
+      
+      print("Navegando a la página ${_currentPage}");
     }
   }
 
@@ -109,10 +127,15 @@ class _SplashScreenState extends State<SplashScreen> {
               PageView.builder(
                 controller: _pageController,
                 onPageChanged: (index) {
-                  setState(() {
-                    _currentPage = index;
-                  });
+                  // Solo actualizar si el índice es diferente
+                  if (_currentPage != index) {
+                    setState(() {
+                      _currentPage = index;
+                    });
+                    print("Página cambiada a $index");
+                  }
                 },
+                physics: const BouncingScrollPhysics(),
                 itemCount: _pages.length,
                 itemBuilder: (context, index) {
                   return _buildMobilePage(_pages[index]);
@@ -120,65 +143,63 @@ class _SplashScreenState extends State<SplashScreen> {
               ),
               
               // Botones de navegación
-              Positioned(
-                left: 20,
-                top: 0,
-                bottom: 0,
-                child: Center(
-                  child: _currentPage > 0
-                      ? Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
+              if (_currentPage > 0)
+                Positioned(
+                  left: 20,
+                  top: 0,
+                  bottom: 0,
+                  child: Center(
+                    child: Material(
+                      elevation: 4,
+                      color: Colors.white,
+                      shape: const CircleBorder(),
+                      child: InkWell(
+                        onTap: _previousPage,
+                        customBorder: const CircleBorder(),
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: const BoxDecoration(
                             shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
                           ),
-                          child: IconButton(
-                            onPressed: _previousPage,
-                            icon: Icon(
-                              Icons.arrow_back_ios,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
+                          child: Icon(
+                            Icons.arrow_back_ios,
+                            color: Theme.of(context).colorScheme.primary,
+                            size: 24,
                           ),
-                        )
-                      : const SizedBox.shrink(),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
               
-              Positioned(
-                right: 20,
-                top: 0,
-                bottom: 0,
-                child: Center(
-                  child: _currentPage < _pages.length - 1
-                      ? Container(
-                          decoration: BoxDecoration(
-                            color: Colors.white,
+              if (_currentPage < _pages.length - 1)
+                Positioned(
+                  right: 20,
+                  top: 0,
+                  bottom: 0,
+                  child: Center(
+                    child: Material(
+                      elevation: 4,
+                      color: Theme.of(context).colorScheme.primary,
+                      shape: const CircleBorder(),
+                      child: InkWell(
+                        onTap: _nextPage,
+                        customBorder: const CircleBorder(),
+                        child: Container(
+                          padding: const EdgeInsets.all(16),
+                          decoration: const BoxDecoration(
                             shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.black.withOpacity(0.1),
-                                blurRadius: 8,
-                                offset: const Offset(0, 2),
-                              ),
-                            ],
                           ),
-                          child: IconButton(
-                            onPressed: _nextPage,
-                            icon: Icon(
-                              Icons.arrow_forward_ios,
-                              color: Theme.of(context).colorScheme.primary,
-                            ),
+                          child: const Icon(
+                            Icons.arrow_forward_ios,
+                            color: Colors.white,
+                            size: 24,
                           ),
-                        )
-                      : const SizedBox.shrink(),
+                        ),
+                      ),
+                    ),
+                  ),
                 ),
-              ),
             ],
           ),
         ),
@@ -300,35 +321,69 @@ class _SplashScreenState extends State<SplashScreen> {
                     Row(
                       children: [
                         if (_currentPage > 0)
-                          Container(
-                            margin: const EdgeInsets.only(right: 12),
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Theme.of(context).colorScheme.primary,
-                                width: 2,
-                              ),
+                          Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: _previousPage,
                               borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: IconButton(
-                              onPressed: _previousPage,
-                              icon: Icon(
-                                Icons.arrow_back,
-                                color: Theme.of(context).colorScheme.primary,
+                              child: Container(
+                                margin: const EdgeInsets.only(right: 12),
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  border: Border.all(
+                                    color: Theme.of(context).colorScheme.primary,
+                                    width: 2,
+                                  ),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.arrow_back,
+                                      color: Theme.of(context).colorScheme.primary,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      'Anterior',
+                                      style: TextStyle(
+                                        color: Theme.of(context).colorScheme.primary,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
                         
                         if (_currentPage < _pages.length - 1)
-                          Container(
-                            decoration: BoxDecoration(
-                              color: Theme.of(context).colorScheme.primary,
+                          Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              onTap: _nextPage,
                               borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: IconButton(
-                              onPressed: _nextPage,
-                              icon: const Icon(
-                                Icons.arrow_forward,
-                                color: Colors.white,
+                              child: Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).colorScheme.primary,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      'Siguiente',
+                                      style: TextStyle(
+                                        color: Colors.white,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    const Icon(
+                                      Icons.arrow_forward,
+                                      color: Colors.white,
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
@@ -688,6 +743,8 @@ class _SplashScreenState extends State<SplashScreen> {
                   page.image,
                   fit: BoxFit.contain,
                   errorBuilder: (context, error, stackTrace) {
+                    print("Error cargando imagen: $error");
+                    print("Ruta de la imagen: ${page.image}");
                     return Container(
                       decoration: BoxDecoration(
                         gradient: LinearGradient(
@@ -701,17 +758,30 @@ class _SplashScreenState extends State<SplashScreen> {
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Center(
-                        child: Container(
-                          padding: EdgeInsets.all(screenWidth * 0.08),
-                          decoration: BoxDecoration(
-                            color: page.color.withOpacity(0.1),
-                            shape: BoxShape.circle,
-                          ),
-                          child: Icon(
-                            page.icon,
-                            size: screenWidth * 0.3,
-                            color: page.color,
-                          ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(
+                              padding: EdgeInsets.all(screenWidth * 0.08),
+                              decoration: BoxDecoration(
+                                color: page.color.withOpacity(0.1),
+                                shape: BoxShape.circle,
+                              ),
+                              child: Icon(
+                                page.icon,
+                                size: screenWidth * 0.2,
+                                color: page.color,
+                              ),
+                            ),
+                            SizedBox(height: 16),
+                            Text(
+                              "No se pudo cargar la imagen",
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
                         ),
                       ),
                     );
