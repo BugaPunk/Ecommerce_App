@@ -1,6 +1,7 @@
 import 'package:ecommerce_app/screens/home/components/details/details_screen.dart';
 import 'package:flutter/material.dart';
 import 'models/product.dart';
+import 'models/order.dart';
 import 'screens/splash/splash_screen.dart';
 import 'screens/login_screen.dart';
 import 'screens/register_screen.dart';
@@ -23,6 +24,8 @@ import 'screens/vendor/vendor_dashboard_screen.dart';
 import 'screens/cart/cart_screen.dart';
 import 'screens/checkout/checkout_screen.dart';
 import 'screens/checkout/payment_success_screen.dart';
+import 'screens/orders/order_history_screen.dart';
+import 'screens/orders/order_detail_screen.dart';
 
 
 class AppRoutes {
@@ -45,6 +48,10 @@ class AppRoutes {
   static const String productForm = '/vendor/product-form';
   static const String clientProductDetail = '/product-detail';
 
+  // Order routes
+  static const String orderHistory = '/orders';
+  static const String orderDetail = '/order-detail';
+
   // Admin routes
   static const String adminDashboard = '/admin/dashboard';
   static const String adminUsers = '/admin/users';
@@ -64,6 +71,7 @@ class AppRoutes {
       categories: (context) => const CategoriesScreen(),
       cart: (context) => const CartScreen(),
       checkout: (context) => const CheckoutScreen(),
+      orderHistory: (context) => const OrderHistoryScreen(),
       vendorHome: (context) => const VendorHomeScreen(),
       vendorDashboard: (context) => const VendorDashboardScreen(),
       addEditProduct: (context) => const AddEditProductScreen(),
@@ -114,6 +122,15 @@ class AppRoutes {
             product: args?['product'],
           ),
         );
+      case orderDetail:
+        final args = settings.arguments as Map<String, dynamic>?;
+        final order = args?['order'] as Order?;
+        if (order != null) {
+          return MaterialPageRoute(
+            builder: (context) => OrderDetailScreen(order: order),
+          );
+        }
+        break;
       case adminUserDetail:
         final args = settings.arguments as Map<String, dynamic>?;
         final userId = args?['userId'] as int?;

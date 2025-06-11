@@ -30,14 +30,31 @@ class _ProductsScreenState extends State<ProductsScreen> {
     });
 
     try {
+      print('[DEBUG_LOG] ProductsScreen: Loading products...');
       final productProvider = Provider.of<ProductProvider>(context, listen: false);
       await productProvider.fetchProducts();
+      
       setState(() {
         _products = productProvider.products;
+        print('[DEBUG_LOG] ProductsScreen: Loaded ${_products.length} products');
+        
+        // Imprimir algunos detalles para depuración
+        if (_products.isNotEmpty) {
+          print('[DEBUG_LOG] ProductsScreen: First product: ${_products.first.nombre}, ID: ${_products.first.id}');
+        } else {
+          print('[DEBUG_LOG] ProductsScreen: No products loaded');
+        }
+        
+        // Si hay un error en el provider, mostrarlo
+        if (productProvider.errorMessage != null) {
+          _error = 'Error del proveedor: ${productProvider.errorMessage}';
+          print('[DEBUG_LOG] ProductsScreen: Provider error: $_error');
+        }
       });
     } catch (e) {
+      print('[DEBUG_LOG] ProductsScreen: Error loading products: $e');
       setState(() {
-        _error = e.toString();
+        _error = 'Error al cargar productos: ${e.toString()}';
       });
     } finally {
       setState(() {
@@ -61,34 +78,118 @@ class _ProductsScreenState extends State<ProductsScreen> {
 
     if (_error != null) {
       return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(
-              Icons.error_outline,
-              color: Colors.red,
-              size: 60,
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Error al cargar productos',
-              style: Theme.of(context).textTheme.titleLarge,
-            ),
-            const SizedBox(height: 8),
-            Text(_error!),
-            const SizedBox(height: 16),
-            ElevatedButton(
-              onPressed: _loadProducts,
-              child: const Text('Reintentar'),
-            ),
-          ],
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(24.0),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.error_outline,
+                color: Colors.red,
+                size: 60,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Error al cargar productos',
+                style: Theme.of(context).textTheme.titleLarge,
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.red.withOpacity(0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.red.withOpacity(0.3)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Text(
+                      'Detalles del error:',
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    const SizedBox(height: 8),
+                    Text(_error!),
+                  ],
+                ),
+              ),
+              const SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: _loadProducts,
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('Reintentar'),
+                    style: ElevatedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  OutlinedButton.icon(
+                    onPressed: () {
+                      // Cargar productos de demostración
+                      setState(() {
+                        _products = demoProducts;
+                        _error = null;
+                      });
+                    },
+                    icon: const Icon(Icons.shopping_bag),
+                    label: const Text('Usar productos de demostración'),
+                    style: OutlinedButton.styleFrom(
+                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       );
     }
 
     if (_products.isEmpty) {
-      return const Center(
-        child: Text('No hay productos disponibles'),
+      return Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.inventory_2_outlined,
+              size: 80,
+              color: Theme.of(context).disabledColor,
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No hay productos disponibles',
+              style: Theme.of(context).textTheme.titleLarge,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'No se encontraron productos en la base de datos',
+              style: Theme.of(context).textTheme.bodyMedium,
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 24),
+            ElevatedButton.icon(
+              onPressed: _loadProducts,
+              icon: const Icon(Icons.refresh),
+              label: const Text('Reintentar'),
+            ),
+            const SizedBox(height: 16),
+            OutlinedButton.icon(
+              onPressed: () {
+                // Cargar productos de demostración
+                setState(() {
+                  _products = demoProducts;
+                });
+              },
+              icon: const Icon(Icons.shopping_bag),
+              label: const Text('Usar productos de demostración'),
+            ),
+          ],
+        ),
       );
     }
 

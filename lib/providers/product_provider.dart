@@ -92,17 +92,47 @@ class ProductProvider with ChangeNotifier {
       _setLoading(true);
       _clearError();
       
-      // Obtener productos de la API real
+      print('[DEBUG_LOG] Fetching products from API...');
+      
+      // Obtener productos de la API real usando el endpoint /all
       final response = await _apiService.get('/api/productos/all');
       if (response != null) {
+        print('[DEBUG_LOG] Products fetched successfully: ${response.length} products');
         _products = (response as List).map((item) => Product.fromJson(item)).toList();
+        print('[DEBUG_LOG] Products parsed: ${_products.length} products');
+        
+        // Imprimir algunos detalles para depuración
+        if (_products.isNotEmpty) {
+          print('[DEBUG_LOG] First product: ${_products.first.nombre}, ID: ${_products.first.id}');
+        }
       } else {
-        // Fallback a productos de demostración si la API no devuelve datos
-        _products = demoProducts;
+        print('[DEBUG_LOG] API returned null, trying paginated endpoint...');
+        
+        // Si el endpoint /all falla, intentar con el endpoint paginado
+        try {
+          final paginatedResponse = await _apiService.get('/api/productos');
+          if (paginatedResponse != null && paginatedResponse['content'] != null) {
+            print('[DEBUG_LOG] Products fetched successfully from paginated endpoint');
+            final List<dynamic> productsJson = paginatedResponse['content'];
+            _products = productsJson.map((item) => Product.fromJson(item)).toList();
+            print('[DEBUG_LOG] Products parsed from paginated response: ${_products.length} products');
+            
+            if (_products.isNotEmpty) {
+              print('[DEBUG_LOG] First product: ${_products.first.nombre}, ID: ${_products.first.id}');
+            }
+          } else {
+            print('[DEBUG_LOG] Both endpoints failed, using demo products');
+            _products = demoProducts;
+          }
+        } catch (paginatedError) {
+          print('[DEBUG_LOG] Error fetching from paginated endpoint: $paginatedError');
+          _products = demoProducts;
+        }
       }
       
       notifyListeners();
     } catch (e) {
+      print('[DEBUG_LOG] Error fetching products: $e');
       _setError('Error al cargar productos: ${e.toString()}');
       // Fallback a productos de demostración en caso de error
       _products = demoProducts;
@@ -259,30 +289,60 @@ class ProductProvider with ChangeNotifier {
       _setLoading(true);
       _clearError();
 
-      // Obtener categorías reales del backend
-      final categoriesData = await _productService.getCategories();
+      print('[DEBUG_LOG] Fetching categories from API...');
       
-      _categories = categoriesData.map((categoryJson) => 
-        cat.Category(
-          id: categoryJson['id'],
-          nombre: categoryJson['nombre'],
-          descripcion: categoryJson['descripcion'] ?? '',
-          tiendaId: categoryJson['tiendaId'] ?? 1,
-        )
-      ).toList();
+      // Intentar obtener categorías directamente desde la API
+      try {
+        final response = await _apiService.get('/api/categorias');
+        if (response != null) {
+          print('[DEBUG_LOG] Categories fetched successfully: ${response.length} categories');
+          _categories = (response as List).map((item) => 
+            cat.Category.fromJson(item)
+          ).toList();
+          
+          // Imprimir algunos detalles para depuración
+          if (_categories.isNotEmpty) {
+            print('[DEBUG_LOG] First category: ${_categories.first.nombre}, ID: ${_categories.first.id}');
+          }
+          
+          notifyListeners();
+          return;
+        }
+      } catch (apiError) {
+        print('[DEBUG_LOG] Error fetching categories from API: $apiError');
+        // Continuar con el método alternativo
+      }
       
+      // Si falla el método directo, intentar con el servicio de productos
+      try {
+        final categoriesData = await _productService.getCategories();
+        
+        _categories = categoriesData.map((categoryJson) => 
+          cat.Category(
+            id: categoryJson['id'],
+            nombre: categoryJson['nombre'],
+            descripcion: categoryJson['descripcion'] ?? '',
+            tiendaId: categoryJson['tiendaId'] ?? 1,
+          )
+        ).toList();
+        
+        notifyListeners();
+        return;
+      } catch (serviceError) {
+        print('[DEBUG_LOG] Error fetching categories from service: $serviceError');
+        // Continuar con el fallback
+      }
+      
+      // Fallback: usar categorías demo si fallan ambos métodos
+      print('[DEBUG_LOG] Using demo categories');
+      _categories = cat.demoCategories;
       notifyListeners();
     } catch (e) {
+      print('[DEBUG_LOG] General error fetching categories: $e');
       _setError('Error al cargar categorías: ${e.toString()}');
       
-      // Fallback: usar categorías demo si falla la carga del backend
-      _categories = [
-        cat.Category(id: 1, nombre: "Electrónicos", descripcion: "Productos electrónicos", tiendaId: 1),
-        cat.Category(id: 2, nombre: "Moda", descripcion: "Ropa y accesorios", tiendaId: 1),
-        cat.Category(id: 3, nombre: "Hogar", descripcion: "Artículos para el hogar", tiendaId: 1),
-        cat.Category(id: 4, nombre: "Deportes", descripcion: "Artículos deportivos", tiendaId: 1),
-        cat.Category(id: 5, nombre: "Libros", descripcion: "Libros y literatura", tiendaId: 1),
-      ];
+      // Fallback: usar categorías demo
+      _categories = cat.demoCategories;
       notifyListeners();
     } finally {
       _setLoading(false);

@@ -27,4 +27,4 @@ const String kPhoneNumberNullError = "Por favor ingresa tu número de teléfono"
 const String kAddressNullError = "Por favor ingresa tu dirección";
 
 // API URL
-const String kBaseUrl = "http://localhost:8080"; // Cambia esto a la URL de tu API
+const String kBaseUrl = "https://ecommerce-springboot-backend-xen4.onrender.com"; // URL de la API en Render

@@ -425,6 +425,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 icon: const Icon(Icons.lock),
                 label: const Text('Cambiar Contraseña'),
               ),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.of(context).pushNamed('/orders');
+                },
+                icon: const Icon(Icons.receipt_long),
+                label: const Text('Mis Pedidos'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Theme.of(context).colorScheme.secondary,
+                  foregroundColor: Colors.white,
+                ),
+              ),
             ],
           ],
         ),

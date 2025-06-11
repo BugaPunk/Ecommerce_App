@@ -47,6 +47,15 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       final cartProvider = Provider.of<CartProvider>(context, listen: false);
       final orderProvider = Provider.of<OrderProvider>(context, listen: false);
       
+      // Mostrar mensaje informativo sobre el modo de demostración
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('NOTA: El servidor tiene un problema técnico. Se usará el modo de demostración.'),
+          backgroundColor: Colors.orange,
+          duration: Duration(seconds: 5),
+        ),
+      );
+      
       // Verificar que el carrito no esté vacío
       if (cartProvider.items.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
